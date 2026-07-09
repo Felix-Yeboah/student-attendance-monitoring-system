@@ -1,0 +1,25 @@
+# IntelliJ IDEA
+.idea/
+*.iml
+out/
+
+# Maven
+/target/
+
+# Local database credentials - do not commit passwords
+database.properties
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Generated reports and local exports
+exports/
+
+# Local learning/support notes not included in final repository
+docs/ASSIGNMENT_ALIGNMENT.md
+docs/BEGINNER_ARCHITECTURE_LESSON.md
+docs/OOP_EVIDENCE.md
+docs/SYSTEM_DESIGN.md
+docs/TECHNICAL_REPORT_GUIDE.md
+docs/TEST_PLAN.md

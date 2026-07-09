@@ -1,0 +1,5 @@
+# Copy this file to database.properties and add your own local password.
+# database.properties is ignored by Git so credentials stay private.
+db.url=jdbc:mysql://localhost:3306/student_attendance_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+db.username=root
+db.password=CHANGE_ME
