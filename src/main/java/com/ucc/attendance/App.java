@@ -1,5 +1,7 @@
 package com.ucc.attendance;
 
+import javafx.geometry.Rectangle2D;
+import javafx.stage.Screen;
 import com.ucc.attendance.database.DatabaseInitializer;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -31,15 +33,21 @@ public class App extends Application {
             );
             Pane root = loader.load();
 
-            Scene scene = new Scene(root, 1440, 900);
+            Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+
+            double preferredWidth = Math.min(1280, screenBounds.getWidth() * 0.92);
+            double preferredHeight = Math.min(820, screenBounds.getHeight() * 0.88);
+
+            Scene scene = new Scene(root, preferredWidth, preferredHeight);
             scene.getStylesheets().add(Objects.requireNonNull(
                     App.class.getResource("/com/ucc/attendance/css/app.css")
             ).toExternalForm());
 
             primaryStage.setTitle("Student Attendance Monitoring System");
-            primaryStage.setMinWidth(1100);
-            primaryStage.setMinHeight(720);
+            primaryStage.setMinWidth(980);
+            primaryStage.setMinHeight(650);
             primaryStage.setScene(scene);
+            primaryStage.centerOnScreen();
             primaryStage.show();
         } catch (IOException | RuntimeException exception) {
             LOGGER.log(Level.SEVERE, "The application could not start.", exception);
