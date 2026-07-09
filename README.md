@@ -38,14 +38,6 @@ student-attendance-monitoring-system
 - README.md
 - database.properties.template
 
-## How to Run
-
-1. Clone the repository.
-2. Open the project in IntelliJ IDEA.
-3. Configure MySQL on your local computer.
-4. Copy database.properties.template and rename the copy to database.properties.
-5. Add your local MySQL username and password in database.properties.
-6. Run the project using Maven.
 
 ## Author
 
