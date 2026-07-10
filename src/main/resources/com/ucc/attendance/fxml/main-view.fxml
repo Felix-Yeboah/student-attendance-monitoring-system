@@ -66,30 +66,52 @@
                                         <Label styleClass="page-description" text="Live summary for today. Use the tabs to manage data and record attendance." />
                                     </VBox>
                                     <FlowPane hgap="16.0" vgap="16.0">
-                                        <VBox prefWidth="220.0" spacing="8.0" styleClass="stat-card">
+                                        <VBox prefWidth="210.0" spacing="8.0" styleClass="students-stat-card">
                                             <Label styleClass="stat-label" text="ACTIVE STUDENTS" />
                                             <Label fx:id="totalStudentsLabel" styleClass="stat-value" text="0" />
-                                            <Label styleClass="stat-hint" text="Students available in registers" />
+                                            <Label styleClass="stat-hint" text="Students available" />
                                         </VBox>
-                                        <VBox prefWidth="220.0" spacing="8.0" styleClass="stat-card">
+
+                                        <VBox prefWidth="210.0" spacing="8.0" styleClass="courses-stat-card">
                                             <Label styleClass="stat-label" text="COURSES" />
                                             <Label fx:id="totalCoursesLabel" styleClass="stat-value" text="0" />
-                                            <Label styleClass="stat-hint" text="Courses ready for attendance" />
+                                            <Label styleClass="stat-hint" text="Courses created" />
                                         </VBox>
-                                        <VBox prefWidth="220.0" spacing="8.0" styleClass="stat-card">
+
+                                        <VBox prefWidth="210.0" spacing="8.0" styleClass="present-stat-card">
                                             <Label styleClass="stat-label" text="PRESENT TODAY" />
                                             <Label fx:id="todayPresentLabel" styleClass="stat-value" text="0" />
-                                            <Label styleClass="stat-hint" text="Recorded as present" />
+                                            <Label styleClass="stat-hint" text="Marked present" />
                                         </VBox>
-                                        <VBox prefWidth="220.0" spacing="8.0" styleClass="stat-card">
+
+                                        <VBox prefWidth="210.0" spacing="8.0" styleClass="late-stat-card">
                                             <Label styleClass="stat-label" text="LATE TODAY" />
                                             <Label fx:id="todayLateLabel" styleClass="stat-value" text="0" />
-                                            <Label styleClass="stat-hint" text="Recorded as late" />
+                                            <Label styleClass="stat-hint" text="Marked late" />
                                         </VBox>
-                                        <VBox prefWidth="220.0" spacing="8.0" styleClass="stat-card">
+
+                                        <VBox prefWidth="210.0" spacing="8.0" styleClass="absent-stat-card">
                                             <Label styleClass="stat-label" text="ABSENT TODAY" />
                                             <Label fx:id="todayAbsentLabel" styleClass="stat-value" text="0" />
-                                            <Label styleClass="stat-hint" text="Recorded as absent" />
+                                            <Label styleClass="stat-hint" text="Marked absent" />
+                                        </VBox>
+
+                                        <VBox prefWidth="210.0" spacing="8.0" styleClass="marked-stat-card">
+                                            <Label styleClass="stat-label" text="TOTAL MARKED" />
+                                            <Label fx:id="todayMarkedLabel" styleClass="stat-value" text="0" />
+                                            <Label styleClass="stat-hint" text="Today's records" />
+                                        </VBox>
+
+                                        <VBox prefWidth="210.0" spacing="8.0" styleClass="rate-stat-card">
+                                            <Label styleClass="stat-label" text="ATTENDANCE RATE" />
+                                            <Label fx:id="todayAttendanceRateLabel" styleClass="stat-value" text="0.0%" />
+                                            <Label styleClass="stat-hint" text="Present + late" />
+                                        </VBox>
+
+                                        <VBox prefWidth="210.0" spacing="8.0" styleClass="alert-stat-card">
+                                            <Label styleClass="stat-label" text="TODAY'S STATUS" />
+                                            <Label fx:id="todayRiskLabel" styleClass="stat-value" text="No data" />
+                                            <Label styleClass="stat-hint" text="Quick attendance insight" />
                                         </VBox>
                                     </FlowPane>
                                     <VBox spacing="8.0" styleClass="info-panel">

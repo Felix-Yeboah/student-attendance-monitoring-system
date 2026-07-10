@@ -304,3 +304,146 @@
     -fx-font-weight: bold;
     -fx-text-fill: #1e3a5f;
 }
+
+
+/* Fix the dark/blurry title problem */
+.app-header .brand-title {
+    -fx-font-size: 30px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #ffffff;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.30), 4, 0.2, 0, 1);
+}
+
+.app-header .brand-subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: #dbeafe;
+}
+
+.app-header .menu-bar .label {
+    -fx-text-fill: #ffffff;
+}
+
+.app-header .button {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #0f4c81;
+    -fx-font-weight: bold;
+}
+
+.app-header .button:hover {
+    -fx-background-color: #eaf4ff;
+}
+
+/* Improve the header background */
+.app-header {
+    -fx-background-color: linear-gradient(to right, #082f49, #0f4c81, #0e7490);
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.35), 16, 0.22, 0, 4);
+}
+
+/* Dashboard card base style */
+.students-stat-card,
+.courses-stat-card,
+.present-stat-card,
+.late-stat-card,
+.absent-stat-card,
+.marked-stat-card,
+.rate-stat-card,
+.alert-stat-card {
+    -fx-padding: 20;
+    -fx-background-radius: 18;
+    -fx-border-radius: 18;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.18), 16, 0.18, 0, 5);
+}
+
+.students-stat-card:hover,
+.courses-stat-card:hover,
+.present-stat-card:hover,
+.late-stat-card:hover,
+.absent-stat-card:hover,
+.marked-stat-card:hover,
+.rate-stat-card:hover,
+.alert-stat-card:hover {
+    -fx-scale-x: 1.015;
+    -fx-scale-y: 1.015;
+}
+
+/* Individual dashboard card colors */
+.students-stat-card {
+    -fx-background-color: linear-gradient(to bottom right, #2563eb, #1d4ed8);
+}
+
+.courses-stat-card {
+    -fx-background-color: linear-gradient(to bottom right, #7c3aed, #5b21b6);
+}
+
+.present-stat-card {
+    -fx-background-color: linear-gradient(to bottom right, #059669, #047857);
+}
+
+.late-stat-card {
+    -fx-background-color: linear-gradient(to bottom right, #f59e0b, #d97706);
+}
+
+.absent-stat-card {
+    -fx-background-color: linear-gradient(to bottom right, #dc2626, #b91c1c);
+}
+
+.marked-stat-card {
+    -fx-background-color: linear-gradient(to bottom right, #0891b2, #0e7490);
+}
+
+.rate-stat-card {
+    -fx-background-color: linear-gradient(to bottom right, #16a34a, #15803d);
+}
+
+.alert-stat-card {
+    -fx-background-color: linear-gradient(to bottom right, #334155, #1e293b);
+}
+
+/* Make dashboard card text white */
+.students-stat-card .stat-label,
+.students-stat-card .stat-value,
+.students-stat-card .stat-hint,
+.courses-stat-card .stat-label,
+.courses-stat-card .stat-value,
+.courses-stat-card .stat-hint,
+.present-stat-card .stat-label,
+.present-stat-card .stat-value,
+.present-stat-card .stat-hint,
+.late-stat-card .stat-label,
+.late-stat-card .stat-value,
+.late-stat-card .stat-hint,
+.absent-stat-card .stat-label,
+.absent-stat-card .stat-value,
+.absent-stat-card .stat-hint,
+.marked-stat-card .stat-label,
+.marked-stat-card .stat-value,
+.marked-stat-card .stat-hint,
+.rate-stat-card .stat-label,
+.rate-stat-card .stat-value,
+.rate-stat-card .stat-hint,
+.alert-stat-card .stat-label,
+.alert-stat-card .stat-value,
+.alert-stat-card .stat-hint {
+    -fx-text-fill: #ffffff;
+}
+
+.students-stat-card .stat-hint,
+.courses-stat-card .stat-hint,
+.present-stat-card .stat-hint,
+.late-stat-card .stat-hint,
+.absent-stat-card .stat-hint,
+.marked-stat-card .stat-hint,
+.rate-stat-card .stat-hint,
+.alert-stat-card .stat-hint {
+    -fx-opacity: 0.88;
+}
+
+.stat-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+}
+
+.stat-value {
+    -fx-font-size: 36px;
+    -fx-font-weight: 900;
+}

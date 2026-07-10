@@ -57,6 +57,9 @@ public class MainController {
     @FXML private Label todayPresentLabel;
     @FXML private Label todayLateLabel;
     @FXML private Label todayAbsentLabel;
+    @FXML private Label todayMarkedLabel;
+    @FXML private Label todayAttendanceRateLabel;
+    @FXML private Label todayRiskLabel;
 
     @FXML private TextField studentNumberField;
     @FXML private TextField studentFirstNameField;
@@ -465,11 +468,32 @@ public class MainController {
     private void loadDashboard() {
         try {
             DashboardStatistics statistics = attendanceService.getDashboardStatistics(LocalDate.now());
+
+            int present = statistics.getTodayPresent();
+            int late = statistics.getTodayLate();
+            int absent = statistics.getTodayAbsent();
+            int markedToday = present + late + absent;
+
+            double attendanceRate = markedToday == 0
+                    ? 0.0
+                    : ((present + late) * 100.0) / markedToday;
+
             totalStudentsLabel.setText(String.valueOf(statistics.getTotalStudents()));
             totalCoursesLabel.setText(String.valueOf(statistics.getTotalCourses()));
-            todayPresentLabel.setText(String.valueOf(statistics.getTodayPresent()));
-            todayLateLabel.setText(String.valueOf(statistics.getTodayLate()));
-            todayAbsentLabel.setText(String.valueOf(statistics.getTodayAbsent()));
+            todayPresentLabel.setText(String.valueOf(present));
+            todayLateLabel.setText(String.valueOf(late));
+            todayAbsentLabel.setText(String.valueOf(absent));
+            todayMarkedLabel.setText(String.valueOf(markedToday));
+            todayAttendanceRateLabel.setText(String.format("%.1f%%", attendanceRate));
+
+            if (markedToday == 0) {
+                todayRiskLabel.setText("No register");
+            } else if (absent > 0) {
+                todayRiskLabel.setText("Review absences");
+            } else {
+                todayRiskLabel.setText("Good standing");
+            }
+
         } catch (DataAccessException exception) {
             showError(exception.getMessage());
         }
