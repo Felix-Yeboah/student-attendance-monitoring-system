@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.geometry.Pos?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
@@ -10,302 +9,489 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Priority?>
-<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="900.0" prefWidth="1440.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ucc.attendance.controller.MainController">
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.ucc.attendance.controller.MainController"
+            styleClass="root">
+
     <top>
-            <VBox styleClass="app-header">
-                <MenuBar>
-                    <menus>
-                        <Menu text="File">
-                            <items>
-                                <MenuItem text="Exit" onAction="#handleExit" />
-                            </items>
-                        </Menu>
+        <VBox styleClass="app-header">
 
-                        <Menu text="Help">
-                            <items>
-                                <MenuItem text="Refresh Dashboard" onAction="#handleRefreshDashboard" />
-                            </items>
-                        </Menu>
-                    </menus>
-                </MenuBar>
+            <MenuBar>
+                <menus>
+                    <Menu text="File">
+                        <items>
+                            <MenuItem text="Refresh" onAction="#handleRefresh" />
+                            <MenuItem text="Exit" onAction="#handleExit" />
+                        </items>
+                    </Menu>
 
-                <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="brand-bar">
-                    <VBox spacing="3.0">
-                        <Label styleClass="brand-title"
-                               text="Student Attendance Monitoring System" />
+                    <Menu text="Help">
+                        <items>
+                            <MenuItem text="Refresh Dashboard" onAction="#handleRefreshDashboard" />
+                        </items>
+                    </Menu>
+                </menus>
+            </MenuBar>
 
-                        <Label styleClass="brand-subtitle"
-                               text="Manage students, courses, attendance registers, and reports" />
-                    </VBox>
+            <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="brand-bar">
+                <VBox spacing="3.0">
+                    <Label text="Student Attendance Monitoring System"
+                           styleClass="brand-title" />
 
-                    <Region HBox.hgrow="ALWAYS" />
+                    <Label text="Manage students, courses, attendance registers, and reports"
+                           styleClass="brand-subtitle" />
+                </VBox>
+
+                <Region HBox.hgrow="ALWAYS" />
+
+                <VBox alignment="CENTER_RIGHT" spacing="4.0" styleClass="logged-user-box">
+                    <Label fx:id="loggedInUserLabel"
+                           text="User"
+                           styleClass="logged-user-name" />
+
+                    <Label fx:id="loggedInRoleLabel"
+                           text="ROLE"
+                           styleClass="logged-user-role" />
 
                     <HBox alignment="CENTER_RIGHT" spacing="10.0">
-                        <Button mnemonicParsing="false"
-                                text="Refresh"
+                        <Button text="Refresh"
+                                mnemonicParsing="false"
                                 onAction="#handleRefresh"
                                 styleClass="secondary-button" />
 
-                        <Button mnemonicParsing="false"
-                                text="Logout"
+                        <Button text="Logout"
+                                mnemonicParsing="false"
                                 onAction="#handleLogout"
                                 styleClass="danger-button" />
                     </HBox>
-                </HBox>
-            </VBox>
+                </VBox>
+            </HBox>
+        </VBox>
     </top>
+
     <center>
-        <TabPane tabClosingPolicy="UNAVAILABLE" styleClass="main-tabs">
-            <tabs>
-                <Tab text="Dashboard">
+        <TabPane tabClosingPolicy="UNAVAILABLE" styleClass="main-tab-pane">
+
+            <!-- =========================
+                 DASHBOARD TAB
+                 ========================= -->
+            <Tab text="Dashboard">
+                <ScrollPane fitToWidth="true" styleClass="page-scroll">
                     <content>
-                        <ScrollPane fitToWidth="true" styleClass="page-scroll">
-                            <content>
-                                <VBox spacing="20.0" styleClass="page-content">
-                                    <padding><Insets bottom="24.0" left="28.0" right="28.0" top="24.0" /></padding>
-                                    <VBox spacing="6.0">
-                                        <Label styleClass="page-title" text="Attendance Overview" />
-                                        <Label styleClass="page-description" text="Live summary for today. Use the tabs to manage data and record attendance." />
-                                    </VBox>
-                                    <FlowPane hgap="16.0" vgap="16.0">
-                                        <VBox prefWidth="210.0" spacing="8.0" styleClass="students-stat-card">
-                                            <Label styleClass="stat-label" text="ACTIVE STUDENTS" />
-                                            <Label fx:id="totalStudentsLabel" styleClass="stat-value" text="0" />
-                                            <Label styleClass="stat-hint" text="Students available" />
-                                        </VBox>
+                        <VBox spacing="22.0" styleClass="page-container">
+                            <padding>
+                                <Insets top="24.0" right="28.0" bottom="28.0" left="28.0" />
+                            </padding>
 
-                                        <VBox prefWidth="210.0" spacing="8.0" styleClass="courses-stat-card">
-                                            <Label styleClass="stat-label" text="COURSES" />
-                                            <Label fx:id="totalCoursesLabel" styleClass="stat-value" text="0" />
-                                            <Label styleClass="stat-hint" text="Courses created" />
-                                        </VBox>
+                            <VBox spacing="6.0">
+                                <Label text="Dashboard Overview"
+                                       styleClass="page-title" />
 
-                                        <VBox prefWidth="210.0" spacing="8.0" styleClass="present-stat-card">
-                                            <Label styleClass="stat-label" text="PRESENT TODAY" />
-                                            <Label fx:id="todayPresentLabel" styleClass="stat-value" text="0" />
-                                            <Label styleClass="stat-hint" text="Marked present" />
-                                        </VBox>
+                                <Label text="A quick summary of students, courses, and today’s attendance activity."
+                                       styleClass="page-subtitle" />
+                            </VBox>
 
-                                        <VBox prefWidth="210.0" spacing="8.0" styleClass="late-stat-card">
-                                            <Label styleClass="stat-label" text="LATE TODAY" />
-                                            <Label fx:id="todayLateLabel" styleClass="stat-value" text="0" />
-                                            <Label styleClass="stat-hint" text="Marked late" />
-                                        </VBox>
+                            <FlowPane hgap="18.0" vgap="18.0" prefWrapLength="980.0">
 
-                                        <VBox prefWidth="210.0" spacing="8.0" styleClass="absent-stat-card">
-                                            <Label styleClass="stat-label" text="ABSENT TODAY" />
-                                            <Label fx:id="todayAbsentLabel" styleClass="stat-value" text="0" />
-                                            <Label styleClass="stat-hint" text="Marked absent" />
-                                        </VBox>
-
-                                        <VBox prefWidth="210.0" spacing="8.0" styleClass="marked-stat-card">
-                                            <Label styleClass="stat-label" text="TOTAL MARKED" />
-                                            <Label fx:id="todayMarkedLabel" styleClass="stat-value" text="0" />
-                                            <Label styleClass="stat-hint" text="Today's records" />
-                                        </VBox>
-
-                                        <VBox prefWidth="210.0" spacing="8.0" styleClass="rate-stat-card">
-                                            <Label styleClass="stat-label" text="ATTENDANCE RATE" />
-                                            <Label fx:id="todayAttendanceRateLabel" styleClass="stat-value" text="0.0%" />
-                                            <Label styleClass="stat-hint" text="Present + late" />
-                                        </VBox>
-
-                                        <VBox prefWidth="210.0" spacing="8.0" styleClass="alert-stat-card">
-                                            <Label styleClass="stat-label" text="TODAY'S STATUS" />
-                                            <Label fx:id="todayRiskLabel" styleClass="stat-value" text="No data" />
-                                            <Label styleClass="stat-hint" text="Quick attendance insight" />
-                                        </VBox>
-                                    </FlowPane>
-                                    <VBox spacing="8.0" styleClass="info-panel">
-                                        <Label styleClass="section-title" text="Recommended workflow" />
-                                        <Label wrapText="true" text="1. Add students.  2. Add courses.  3. Select a course and date in Attendance.  4. Load the register, choose a status for each student, and save.  5. Use Reports to review or export the records." />
-                                    </VBox>
+                                <VBox spacing="8.0" styleClass="stat-card, students-stat-card">
+                                    <Label text="Total Students" styleClass="stat-title" />
+                                    <Label fx:id="totalStudentsLabel" text="0" styleClass="stat-value" />
+                                    <Label text="Registered active learners" styleClass="stat-caption" />
                                 </VBox>
-                            </content>
-                        </ScrollPane>
+
+                                <VBox spacing="8.0" styleClass="stat-card, courses-stat-card">
+                                    <Label text="Total Courses" styleClass="stat-title" />
+                                    <Label fx:id="totalCoursesLabel" text="0" styleClass="stat-value" />
+                                    <Label text="Available academic modules" styleClass="stat-caption" />
+                                </VBox>
+
+                                <VBox spacing="8.0" styleClass="stat-card, present-stat-card">
+                                    <Label text="Today Present" styleClass="stat-title" />
+                                    <Label fx:id="todayPresentLabel" text="0" styleClass="stat-value" />
+                                    <Label text="Marked present today" styleClass="stat-caption" />
+                                </VBox>
+
+                                <VBox spacing="8.0" styleClass="stat-card, late-stat-card">
+                                    <Label text="Today Late" styleClass="stat-title" />
+                                    <Label fx:id="todayLateLabel" text="0" styleClass="stat-value" />
+                                    <Label text="Arrived late today" styleClass="stat-caption" />
+                                </VBox>
+
+                                <VBox spacing="8.0" styleClass="stat-card, absent-stat-card">
+                                    <Label text="Today Absent" styleClass="stat-title" />
+                                    <Label fx:id="todayAbsentLabel" text="0" styleClass="stat-value" />
+                                    <Label text="Marked absent today" styleClass="stat-caption" />
+                                </VBox>
+
+                                <VBox spacing="8.0" styleClass="stat-card, marked-stat-card">
+                                    <Label text="Marked Today" styleClass="stat-title" />
+                                    <Label fx:id="todayMarkedLabel" text="0" styleClass="stat-value" />
+                                    <Label text="Total register entries" styleClass="stat-caption" />
+                                </VBox>
+
+                                <VBox spacing="8.0" styleClass="stat-card, rate-stat-card">
+                                    <Label text="Attendance Rate" styleClass="stat-title" />
+                                    <Label fx:id="todayAttendanceRateLabel" text="0.0%" styleClass="stat-value" />
+                                    <Label text="Present and late percentage" styleClass="stat-caption" />
+                                </VBox>
+
+                                <VBox spacing="8.0" styleClass="stat-card, alert-stat-card">
+                                    <Label text="Status" styleClass="stat-title" />
+                                    <Label fx:id="todayRiskLabel" text="No register" styleClass="stat-value-small" />
+                                    <Label text="Today’s attendance condition" styleClass="stat-caption" />
+                                </VBox>
+
+                            </FlowPane>
+                        </VBox>
                     </content>
-                </Tab>
-                <Tab text="Students">
+                </ScrollPane>
+            </Tab>
+
+            <!-- =========================
+                 STUDENTS TAB
+                 ========================= -->
+            <Tab text="Students">
+                <ScrollPane fitToWidth="true" styleClass="page-scroll">
                     <content>
-                        <ScrollPane fitToWidth="true" styleClass="page-scroll">
-                            <content>
-                                <VBox spacing="18.0" styleClass="page-content">
-                                    <padding><Insets bottom="24.0" left="28.0" right="28.0" top="24.0" /></padding>
-                                    <VBox spacing="6.0">
-                                        <Label styleClass="page-title" text="Student Management" />
-                                        <Label styleClass="page-description" text="Add a student or select an existing row to edit it." />
-                                    </VBox>
-                                    <TitledPane expanded="true" text="Student profile">
-                                        <content>
-                                            <GridPane hgap="14.0" vgap="12.0">
-                                                <columnConstraints>
-                                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="33.33" />
-                                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="33.33" />
-                                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="33.34" />
-                                                </columnConstraints>
-                                                <VBox spacing="5.0"><Label text="Student Number *" /><TextField fx:id="studentNumberField" promptText="e.g. UCC/IT/006" /></VBox>
-                                                <VBox spacing="5.0" GridPane.columnIndex="1"><Label text="First Name *" /><TextField fx:id="studentFirstNameField" promptText="e.g. Akosua" /></VBox>
-                                                <VBox spacing="5.0" GridPane.columnIndex="2"><Label text="Last Name *" /><TextField fx:id="studentLastNameField" promptText="e.g. Agyeman" /></VBox>
-                                                <VBox spacing="5.0" GridPane.rowIndex="1"><Label text="Email Address *" /><TextField fx:id="studentEmailField" promptText="student@example.edu.gh" /></VBox>
-                                                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1"><Label text="Programme *" /><TextField fx:id="studentProgrammeField" promptText="MSc Information Technology" /></VBox>
-                                                <VBox spacing="5.0" GridPane.columnIndex="2" GridPane.rowIndex="1"><Label text="Gender *" /><ComboBox fx:id="studentGenderComboBox" maxWidth="Infinity" promptText="Select gender" /></VBox>
-                                                <HBox spacing="10.0" GridPane.columnSpan="3" GridPane.rowIndex="2">
-                                                    <Button fx:id="studentSaveButton" onAction="#handleSaveStudent" styleClass="primary-button" text="Save Student" />
-                                                    <Button onAction="#handleClearStudentForm" styleClass="secondary-button" text="Clear Form" />
-                                                    <Button onAction="#handleDeleteStudent" styleClass="danger-button" text="Delete Selected" />
-                                                </HBox>
-                                            </GridPane>
-                                        </content>
-                                    </TitledPane>
-                                    <HBox alignment="CENTER_LEFT" spacing="12.0">
-                                        <Label styleClass="section-title" text="Student List" />
-                                        <HBox HBox.hgrow="ALWAYS" />
-                                        <TextField fx:id="studentSearchField" prefWidth="320.0" promptText="Search by number, name, or programme" />
-                                    </HBox>
-                                    <TableView fx:id="studentTable" prefHeight="390.0">
-                                        <columns>
-                                            <TableColumn fx:id="studentIdColumn" prefWidth="60.0" text="ID" />
-                                            <TableColumn fx:id="studentNumberColumn" prefWidth="150.0" text="Student Number" />
-                                            <TableColumn fx:id="studentNameColumn" prefWidth="180.0" text="Full Name" />
-                                            <TableColumn fx:id="studentEmailColumn" prefWidth="240.0" text="Email" />
-                                            <TableColumn fx:id="studentProgrammeColumn" prefWidth="230.0" text="Programme" />
-                                            <TableColumn fx:id="studentGenderColumn" prefWidth="130.0" text="Gender" />
-                                        </columns>
-                                    </TableView>
-                                </VBox>
-                            </content>
-                        </ScrollPane>
+                        <VBox spacing="20.0" styleClass="page-container">
+                            <padding>
+                                <Insets top="24.0" right="28.0" bottom="28.0" left="28.0" />
+                            </padding>
+
+                            <VBox spacing="6.0">
+                                <Label text="Student Management"
+                                       styleClass="page-title" />
+
+                                <Label text="Create, update, search, and manage student records."
+                                       styleClass="page-subtitle" />
+                            </VBox>
+
+                            <GridPane hgap="14.0" vgap="12.0" styleClass="form-card">
+                                <padding>
+                                    <Insets top="18.0" right="18.0" bottom="18.0" left="18.0" />
+                                </padding>
+
+                                <Label text="Student Number" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                                <TextField fx:id="studentNumberField"
+                                           promptText="Example: STU001"
+                                           GridPane.rowIndex="0"
+                                           GridPane.columnIndex="1" />
+
+                                <Label text="First Name" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+                                <TextField fx:id="studentFirstNameField"
+                                           promptText="First name"
+                                           GridPane.rowIndex="1"
+                                           GridPane.columnIndex="1" />
+
+                                <Label text="Last Name" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+                                <TextField fx:id="studentLastNameField"
+                                           promptText="Last name"
+                                           GridPane.rowIndex="2"
+                                           GridPane.columnIndex="1" />
+
+                                <Label text="Email" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+                                <TextField fx:id="studentEmailField"
+                                           promptText="student@example.com"
+                                           GridPane.rowIndex="3"
+                                           GridPane.columnIndex="1" />
+
+                                <Label text="Programme" GridPane.rowIndex="4" GridPane.columnIndex="0" />
+                                <TextField fx:id="studentProgrammeField"
+                                           promptText="Example: MSc Information Technology"
+                                           GridPane.rowIndex="4"
+                                           GridPane.columnIndex="1" />
+
+                                <Label text="Gender" GridPane.rowIndex="5" GridPane.columnIndex="0" />
+                                <ComboBox fx:id="studentGenderComboBox"
+                                          promptText="Select gender"
+                                          prefWidth="260.0"
+                                          GridPane.rowIndex="5"
+                                          GridPane.columnIndex="1" />
+
+                                <HBox spacing="10.0" GridPane.rowIndex="6" GridPane.columnIndex="1">
+                                    <Button fx:id="studentSaveButton"
+                                            text="Save Student"
+                                            onAction="#handleSaveStudent"
+                                            styleClass="primary-button" />
+
+                                    <Button text="Clear"
+                                            onAction="#handleClearStudentForm"
+                                            styleClass="secondary-button" />
+
+                                    <Button text="Delete"
+                                            onAction="#handleDeleteStudent"
+                                            styleClass="danger-button" />
+                                </HBox>
+                            </GridPane>
+
+                            <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                <Label text="Search Students:" />
+                                <TextField fx:id="studentSearchField"
+                                           promptText="Search by name, student number, email, or programme"
+                                           HBox.hgrow="ALWAYS" />
+                            </HBox>
+
+                            <TableView fx:id="studentTable" prefHeight="360.0">
+                                <columns>
+                                    <TableColumn fx:id="studentIdColumn" text="ID" prefWidth="60.0" />
+                                    <TableColumn fx:id="studentNumberColumn" text="Student No." prefWidth="130.0" />
+                                    <TableColumn fx:id="studentNameColumn" text="Full Name" prefWidth="190.0" />
+                                    <TableColumn fx:id="studentEmailColumn" text="Email" prefWidth="220.0" />
+                                    <TableColumn fx:id="studentProgrammeColumn" text="Programme" prefWidth="230.0" />
+                                    <TableColumn fx:id="studentGenderColumn" text="Gender" prefWidth="130.0" />
+                                </columns>
+                            </TableView>
+                        </VBox>
                     </content>
-                </Tab>
-                <Tab text="Courses">
+                </ScrollPane>
+            </Tab>
+
+            <!-- =========================
+                 COURSES TAB
+                 ========================= -->
+            <Tab text="Courses">
+                <ScrollPane fitToWidth="true" styleClass="page-scroll">
                     <content>
-                        <ScrollPane fitToWidth="true" styleClass="page-scroll">
-                            <content>
-                                <VBox spacing="18.0" styleClass="page-content">
-                                    <padding><Insets bottom="24.0" left="28.0" right="28.0" top="24.0" /></padding>
-                                    <VBox spacing="6.0">
-                                        <Label styleClass="page-title" text="Course Management" />
-                                        <Label styleClass="page-description" text="Courses appear in the attendance and report selectors after they are saved." />
-                                    </VBox>
-                                    <TitledPane expanded="true" text="Course details">
-                                        <content>
-                                            <GridPane hgap="14.0" vgap="12.0">
-                                                <columnConstraints>
-                                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0" />
-                                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0" />
-                                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0" />
-                                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0" />
-                                                </columnConstraints>
-                                                <VBox spacing="5.0"><Label text="Course Code *" /><TextField fx:id="courseCodeField" promptText="e.g. INF811D" /></VBox>
-                                                <VBox spacing="5.0" GridPane.columnIndex="1"><Label text="Course Title *" /><TextField fx:id="courseTitleField" promptText="Object Oriented Programming" /></VBox>
-                                                <VBox spacing="5.0" GridPane.columnIndex="2"><Label text="Lecturer Name *" /><TextField fx:id="courseLecturerField" promptText="Dr. Example Lecturer" /></VBox>
-                                                <VBox spacing="5.0" GridPane.columnIndex="3"><Label text="Semester *" /><TextField fx:id="courseSemesterField" promptText="Semester 1" /></VBox>
-                                                <HBox spacing="10.0" GridPane.columnSpan="4" GridPane.rowIndex="1">
-                                                    <Button fx:id="courseSaveButton" onAction="#handleSaveCourse" styleClass="primary-button" text="Save Course" />
-                                                    <Button onAction="#handleClearCourseForm" styleClass="secondary-button" text="Clear Form" />
-                                                    <Button onAction="#handleDeleteCourse" styleClass="danger-button" text="Delete Selected" />
-                                                </HBox>
-                                            </GridPane>
-                                        </content>
-                                    </TitledPane>
-                                    <Label styleClass="section-title" text="Course List" />
-                                    <TableView fx:id="courseTable" prefHeight="400.0">
-                                        <columns>
-                                            <TableColumn fx:id="courseIdColumn" prefWidth="60.0" text="ID" />
-                                            <TableColumn fx:id="courseCodeColumn" prefWidth="150.0" text="Course Code" />
-                                            <TableColumn fx:id="courseTitleColumn" prefWidth="360.0" text="Course Title" />
-                                            <TableColumn fx:id="courseLecturerColumn" prefWidth="260.0" text="Lecturer" />
-                                            <TableColumn fx:id="courseSemesterColumn" prefWidth="160.0" text="Semester" />
-                                        </columns>
-                                    </TableView>
-                                </VBox>
-                            </content>
-                        </ScrollPane>
+                        <VBox spacing="20.0" styleClass="page-container">
+                            <padding>
+                                <Insets top="24.0" right="28.0" bottom="28.0" left="28.0" />
+                            </padding>
+
+                            <VBox spacing="6.0">
+                                <Label text="Course Management"
+                                       styleClass="page-title" />
+
+                                <Label text="Create courses and assign them to lecturer user accounts."
+                                       styleClass="page-subtitle" />
+                            </VBox>
+
+                            <GridPane hgap="14.0" vgap="12.0" styleClass="form-card">
+                                <padding>
+                                    <Insets top="18.0" right="18.0" bottom="18.0" left="18.0" />
+                                </padding>
+
+                                <Label text="Course Code" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                                <TextField fx:id="courseCodeField"
+                                           promptText="Example: INF811D"
+                                           GridPane.rowIndex="0"
+                                           GridPane.columnIndex="1" />
+
+                                <Label text="Course Title" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+                                <TextField fx:id="courseTitleField"
+                                           promptText="Example: Object Oriented Programming"
+                                           GridPane.rowIndex="1"
+                                           GridPane.columnIndex="1" />
+
+                                <Label text="Lecturer Username" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+                                <TextField fx:id="courseLecturerField"
+                                           promptText="Example: lecturer"
+                                           GridPane.rowIndex="2"
+                                           GridPane.columnIndex="1" />
+
+                                <Label text="Semester" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+                                <TextField fx:id="courseSemesterField"
+                                           promptText="Example: Semester 1"
+                                           GridPane.rowIndex="3"
+                                           GridPane.columnIndex="1" />
+
+                                <HBox spacing="10.0" GridPane.rowIndex="4" GridPane.columnIndex="1">
+                                    <Button fx:id="courseSaveButton"
+                                            text="Save Course"
+                                            onAction="#handleSaveCourse"
+                                            styleClass="primary-button" />
+
+                                    <Button text="Clear"
+                                            onAction="#handleClearCourseForm"
+                                            styleClass="secondary-button" />
+
+                                    <Button text="Delete"
+                                            onAction="#handleDeleteCourse"
+                                            styleClass="danger-button" />
+                                </HBox>
+                            </GridPane>
+
+                            <TableView fx:id="courseTable" prefHeight="420.0">
+                                <columns>
+                                    <TableColumn fx:id="courseIdColumn" text="ID" prefWidth="60.0" />
+                                    <TableColumn fx:id="courseCodeColumn" text="Course Code" prefWidth="140.0" />
+                                    <TableColumn fx:id="courseTitleColumn" text="Course Title" prefWidth="280.0" />
+                                    <TableColumn fx:id="courseLecturerColumn" text="Lecturer" prefWidth="220.0" />
+                                    <TableColumn fx:id="courseSemesterColumn" text="Semester" prefWidth="150.0" />
+                                </columns>
+                            </TableView>
+                        </VBox>
                     </content>
-                </Tab>
-                <Tab text="Attendance">
+                </ScrollPane>
+            </Tab>
+
+            <!-- =========================
+                 ATTENDANCE TAB
+                 ========================= -->
+            <Tab text="Attendance">
+                <ScrollPane fitToWidth="true" styleClass="page-scroll">
                     <content>
-                        <ScrollPane fitToWidth="true" styleClass="page-scroll">
-                            <content>
-                                <VBox spacing="18.0" styleClass="page-content">
-                                    <padding><Insets bottom="24.0" left="28.0" right="28.0" top="24.0" /></padding>
-                                    <VBox spacing="6.0">
-                                        <Label styleClass="page-title" text="Attendance Register" />
-                                        <Label styleClass="page-description" text="Choose a course and date. Double-click a Status cell to change Present, Late, or Absent." />
-                                    </VBox>
-                                    <HBox alignment="BOTTOM_LEFT" spacing="14.0" styleClass="filter-bar">
-                                        <VBox spacing="5.0"><Label text="Course *" /><ComboBox fx:id="attendanceCourseComboBox" prefWidth="380.0" promptText="Select course" /></VBox>
-                                        <VBox spacing="5.0"><Label text="Attendance Date *" /><DatePicker fx:id="attendanceDatePicker" /></VBox>
-                                        <Button onAction="#handleLoadRegister" styleClass="secondary-button" text="Load Register" />
-                                        <Button onAction="#handleSaveAttendance" styleClass="primary-button" text="Save Attendance" />
-                                    </HBox>
-                                    <Label styleClass="helper-text" text="New registers start with Present. Review every status before saving." />
-                                    <TableView fx:id="attendanceTable" editable="true" prefHeight="480.0">
-                                        <columns>
-                                            <TableColumn fx:id="attendanceStudentNumberColumn" prefWidth="220.0" text="Student Number" />
-                                            <TableColumn fx:id="attendanceStudentNameColumn" prefWidth="420.0" text="Student Name" />
-                                            <TableColumn fx:id="attendanceStatusColumn" prefWidth="240.0" text="Status (double-click to edit)" />
-                                        </columns>
-                                    </TableView>
-                                </VBox>
-                            </content>
-                        </ScrollPane>
+                        <VBox spacing="20.0" styleClass="page-container">
+                            <padding>
+                                <Insets top="24.0" right="28.0" bottom="28.0" left="28.0" />
+                            </padding>
+
+                            <VBox spacing="6.0">
+                                <Label text="Attendance Register"
+                                       styleClass="page-title" />
+
+                                <Label text="Load a course register, mark student attendance, and save the records."
+                                       styleClass="page-subtitle" />
+                            </VBox>
+
+                            <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="form-card">
+                                <padding>
+                                    <Insets top="16.0" right="16.0" bottom="16.0" left="16.0" />
+                                </padding>
+
+                                <Label text="Course:" />
+                                <ComboBox fx:id="attendanceCourseComboBox"
+                                          promptText="Select course"
+                                          prefWidth="330.0" />
+
+                                <Label text="Date:" />
+                                <DatePicker fx:id="attendanceDatePicker"
+                                            prefWidth="160.0" />
+
+                                <Button text="Load Register"
+                                        onAction="#handleLoadRegister"
+                                        styleClass="primary-button" />
+
+                                <Button text="Save Attendance"
+                                        onAction="#handleSaveAttendance"
+                                        styleClass="secondary-button" />
+                            </HBox>
+
+                            <TableView fx:id="attendanceTable" prefHeight="460.0">
+                                <columns>
+                                    <TableColumn fx:id="attendanceStudentNumberColumn"
+                                                 text="Student No."
+                                                 prefWidth="160.0" />
+
+                                    <TableColumn fx:id="attendanceStudentNameColumn"
+                                                 text="Student Name"
+                                                 prefWidth="300.0" />
+
+                                    <TableColumn fx:id="attendanceStatusColumn"
+                                                 text="Status"
+                                                 prefWidth="180.0" />
+                                </columns>
+                            </TableView>
+                        </VBox>
                     </content>
-                </Tab>
-                <Tab text="Reports">
+                </ScrollPane>
+            </Tab>
+
+            <!-- =========================
+                 REPORTS TAB
+                 ========================= -->
+            <Tab text="Reports">
+                <ScrollPane fitToWidth="true" styleClass="page-scroll">
                     <content>
-                        <ScrollPane fitToWidth="true" styleClass="page-scroll">
-                            <content>
-                                <VBox spacing="18.0" styleClass="page-content">
-                                    <padding><Insets bottom="24.0" left="28.0" right="28.0" top="24.0" /></padding>
-                                    <VBox spacing="6.0">
-                                        <Label styleClass="page-title" text="Attendance Reports" />
-                                        <Label styleClass="page-description" text="Use any combination of filters. Leave a filter blank to include all values." />
-                                    </VBox>
-                                    <HBox alignment="BOTTOM_LEFT" spacing="14.0" styleClass="filter-bar">
-                                        <VBox spacing="5.0"><Label text="Course" /><ComboBox fx:id="reportCourseComboBox" prefWidth="330.0" promptText="All courses" /></VBox>
-                                        <VBox spacing="5.0"><Label text="Date" /><DatePicker fx:id="reportDatePicker" promptText="All dates" /></VBox>
-                                        <VBox spacing="5.0"><Label text="Status" /><ComboBox fx:id="reportStatusComboBox" prefWidth="180.0" promptText="All statuses" /></VBox>
-                                        <Button onAction="#handleRunReport" styleClass="primary-button" text="Run Report" />
-                                        <Button onAction="#handleClearReportFilters" styleClass="secondary-button" text="Clear Filters" />
-                                        <Button onAction="#handleExportReport" styleClass="secondary-button" text="Export CSV" />
-                                    </HBox>
-                                    <HBox alignment="CENTER_LEFT" spacing="22.0" styleClass="summary-bar">
-                                        <Label fx:id="reportCountLabel" styleClass="summary-label" text="0 record(s)" />
-                                        <Separator orientation="VERTICAL" prefHeight="20.0" />
-                                        <Label fx:id="reportAttendanceRateLabel" styleClass="summary-label" text="Attendance rate: 0.0%" />
-                                    </HBox>
-                                    <TableView fx:id="reportTable" prefHeight="450.0">
-                                        <columns>
-                                            <TableColumn fx:id="reportCourseColumn" prefWidth="160.0" text="Course" />
-                                            <TableColumn fx:id="reportStudentNumberColumn" prefWidth="180.0" text="Student Number" />
-                                            <TableColumn fx:id="reportStudentNameColumn" prefWidth="260.0" text="Student Name" />
-                                            <TableColumn fx:id="reportDateColumn" prefWidth="180.0" text="Attendance Date" />
-                                            <TableColumn fx:id="reportStatusColumn" prefWidth="180.0" text="Status" />
-                                        </columns>
-                                    </TableView>
-                                </VBox>
-                            </content>
-                        </ScrollPane>
+                        <VBox spacing="20.0" styleClass="page-container">
+                            <padding>
+                                <Insets top="24.0" right="28.0" bottom="28.0" left="28.0" />
+                            </padding>
+
+                            <VBox spacing="6.0">
+                                <Label text="Attendance Reports"
+                                       styleClass="page-title" />
+
+                                <Label text="Filter attendance records by course, date, or attendance status."
+                                       styleClass="page-subtitle" />
+                            </VBox>
+
+                            <VBox spacing="14.0" styleClass="form-card">
+                                <padding>
+                                    <Insets top="16.0" right="16.0" bottom="16.0" left="16.0" />
+                                </padding>
+
+                                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                    <Label text="Course:" />
+                                    <ComboBox fx:id="reportCourseComboBox"
+                                              promptText="All courses"
+                                              prefWidth="300.0" />
+
+                                    <Label text="Date:" />
+                                    <DatePicker fx:id="reportDatePicker"
+                                                prefWidth="160.0" />
+
+                                    <Label text="Status:" />
+                                    <ComboBox fx:id="reportStatusComboBox"
+                                              promptText="All statuses"
+                                              prefWidth="150.0" />
+                                </HBox>
+
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                    <Button text="Run Report"
+                                            onAction="#handleRunReport"
+                                            styleClass="primary-button" />
+
+                                    <Button text="Clear Filters"
+                                            onAction="#handleClearReportFilters"
+                                            styleClass="secondary-button" />
+
+                                    <Button text="Export CSV"
+                                            onAction="#handleExportReport"
+                                            styleClass="secondary-button" />
+
+                                    <Region HBox.hgrow="ALWAYS" />
+
+                                    <Label fx:id="reportCountLabel"
+                                           text="0 record(s)"
+                                           styleClass="report-summary" />
+
+                                    <Label fx:id="reportAttendanceRateLabel"
+                                           text="Attendance rate: 0.0%"
+                                           styleClass="report-summary" />
+                                </HBox>
+                            </VBox>
+
+                            <TableView fx:id="reportTable" prefHeight="440.0">
+                                <columns>
+                                    <TableColumn fx:id="reportCourseColumn"
+                                                 text="Course"
+                                                 prefWidth="130.0" />
+
+                                    <TableColumn fx:id="reportStudentNumberColumn"
+                                                 text="Student No."
+                                                 prefWidth="140.0" />
+
+                                    <TableColumn fx:id="reportStudentNameColumn"
+                                                 text="Student Name"
+                                                 prefWidth="260.0" />
+
+                                    <TableColumn fx:id="reportDateColumn"
+                                                 text="Date"
+                                                 prefWidth="140.0" />
+
+                                    <TableColumn fx:id="reportStatusColumn"
+                                                 text="Status"
+                                                 prefWidth="130.0" />
+                                </columns>
+                            </TableView>
+                        </VBox>
                     </content>
-                </Tab>
-            </tabs>
+                </ScrollPane>
+            </Tab>
+
         </TabPane>
     </center>
 </BorderPane>

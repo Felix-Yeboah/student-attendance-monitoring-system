@@ -2,6 +2,7 @@ package com.ucc.attendance.controller;
 
 import com.ucc.attendance.dao.CourseDao;
 import com.ucc.attendance.dao.StudentDao;
+import com.ucc.attendance.dao.UserDao;
 import com.ucc.attendance.exception.DataAccessException;
 import com.ucc.attendance.exception.ValidationException;
 import com.ucc.attendance.model.AttendanceRecord;
@@ -56,6 +57,7 @@ public class MainController {
 
     private final StudentDao studentDao = new StudentDao();
     private final CourseDao courseDao = new CourseDao();
+    private final UserDao userDao = new UserDao();
     private final AttendanceService attendanceService = new AttendanceService();
 
     private final ObservableList<Student> studentItems = FXCollections.observableArrayList();
@@ -238,6 +240,11 @@ public class MainController {
         return currentUser != null && currentUser.getRole() == UserRole.ADMIN;
     }
 
+    private boolean isLecturerUser() {
+        User currentUser = SessionManager.getCurrentUser();
+        return currentUser != null && currentUser.getRole() == UserRole.LECTURER;
+    }
+
     private boolean requireAdminAccess() {
         if (!isAdminUser()) {
             showError("This action is restricted to administrators only.");
@@ -349,9 +356,25 @@ public class MainController {
             Course course = Optional.ofNullable(courseTable.getSelectionModel().getSelectedItem())
                     .orElseGet(Course::new);
 
+            String lecturerUsername = InputValidator.requireText(
+                    courseLecturerField.getText(),
+                    "Lecturer username"
+            );
+
+            User lecturer = userDao.findByUsername(lecturerUsername)
+                    .orElseThrow(() -> new ValidationException(
+                            "No lecturer account was found with username: " + lecturerUsername
+                    ));
+
+            if (lecturer.getRole() != UserRole.LECTURER) {
+                throw new ValidationException("The selected user must have the LECTURER role.");
+            }
+
             course.setCourseCode(InputValidator.requireCourseCode(courseCodeField.getText()));
             course.setCourseTitle(InputValidator.requireText(courseTitleField.getText(), "Course title"));
-            course.setLecturerName(InputValidator.requireText(courseLecturerField.getText(), "Lecturer name"));
+            course.setLecturerName(lecturer.getFullName());
+            course.setLecturerUsername(lecturer.getUsername());
+            course.setLecturerUserId(lecturer.getId());
             course.setSemester(InputValidator.requireText(courseSemesterField.getText(), "Semester"));
 
             boolean newCourse = course.getId() == 0;
@@ -419,7 +442,13 @@ public class MainController {
 
         courseCodeField.setText(course.getCourseCode());
         courseTitleField.setText(course.getCourseTitle());
-        courseLecturerField.setText(course.getLecturerName());
+
+        if (course.getLecturerUsername() == null || course.getLecturerUsername().isBlank()) {
+            courseLecturerField.setText(course.getLecturerName());
+        } else {
+            courseLecturerField.setText(course.getLecturerUsername());
+        }
+
         courseSemesterField.setText(course.getSemester());
         courseSaveButton.setText("Update Course");
     }
@@ -607,7 +636,14 @@ public class MainController {
             int attendanceCourseId = getSelectedCourseId(attendanceCourseComboBox);
             int reportCourseId = getSelectedCourseId(reportCourseComboBox);
 
-            List<Course> courses = courseDao.findAll();
+            List<Course> courses;
+            User currentUser = SessionManager.getCurrentUser();
+
+            if (currentUser != null && isLecturerUser()) {
+                courses = courseDao.findByLecturerUserId(currentUser.getId());
+            } else {
+                courses = courseDao.findAll();
+            }
 
             courseItems.setAll(courses);
             attendanceCourseComboBox.setItems(FXCollections.observableArrayList(courses));

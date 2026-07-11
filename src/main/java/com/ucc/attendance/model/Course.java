@@ -1,25 +1,20 @@
 package com.ucc.attendance.model;
 
 /**
- * Represents a university course that can be selected for attendance recording.
+ * Represents an academic course/module in the attendance system.
  */
 public class Course {
+
     private int id;
     private String courseCode;
     private String courseTitle;
     private String lecturerName;
+    private String lecturerUsername;
     private String semester;
+    private Integer lecturerUserId;
 
     public Course() {
-        // Default constructor for form-based creation.
-    }
-
-    public Course(int id, String courseCode, String courseTitle, String lecturerName, String semester) {
-        this.id = id;
-        this.courseCode = courseCode;
-        this.courseTitle = courseTitle;
-        this.lecturerName = lecturerName;
-        this.semester = semester;
+        // Default constructor required when creating a new Course object.
     }
 
     public int getId() {
@@ -30,6 +25,7 @@ public class Course {
         this.id = id;
     }
 
+
     public String getCourseCode() {
         return courseCode;
     }
@@ -37,6 +33,7 @@ public class Course {
     public void setCourseCode(String courseCode) {
         this.courseCode = courseCode;
     }
+
 
     public String getCourseTitle() {
         return courseTitle;
@@ -46,6 +43,7 @@ public class Course {
         this.courseTitle = courseTitle;
     }
 
+
     public String getLecturerName() {
         return lecturerName;
     }
@@ -54,12 +52,31 @@ public class Course {
         this.lecturerName = lecturerName;
     }
 
+
+    public String getLecturerUsername() {
+        return lecturerUsername;
+    }
+
+    public void setLecturerUsername(String lecturerUsername) {
+        this.lecturerUsername = lecturerUsername;
+    }
+
+
     public String getSemester() {
         return semester;
     }
 
     public void setSemester(String semester) {
         this.semester = semester;
+    }
+
+
+    public Integer getLecturerUserId() {
+        return lecturerUserId;
+    }
+
+    public void setLecturerUserId(Integer lecturerUserId) {
+        this.lecturerUserId = lecturerUserId;
     }
 
     @Override
