@@ -485,6 +485,14 @@
                                     <TableColumn fx:id="reportStatusColumn"
                                                  text="Status"
                                                  prefWidth="130.0" />
+
+                                    <TableColumn fx:id="reportMarkedByColumn"
+                                                 text="Marked By"
+                                                 prefWidth="140.0" />
+
+                                    <TableColumn fx:id="reportMarkedAtColumn"
+                                                 text="Marked At"
+                                                 prefWidth="170.0" />
                                 </columns>
                             </TableView>
                         </VBox>

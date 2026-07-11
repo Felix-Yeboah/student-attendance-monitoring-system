@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -54,6 +55,9 @@ import java.util.Optional;
  * JavaFX controller for the main dashboard and all application tabs.
  */
 public class MainController {
+
+    private static final DateTimeFormatter REPORT_DATE_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     private final StudentDao studentDao = new StudentDao();
     private final CourseDao courseDao = new CourseDao();
@@ -121,6 +125,8 @@ public class MainController {
     @FXML private TableColumn<AttendanceRecord, String> reportStudentNameColumn;
     @FXML private TableColumn<AttendanceRecord, LocalDate> reportDateColumn;
     @FXML private TableColumn<AttendanceRecord, AttendanceStatus> reportStatusColumn;
+    @FXML private TableColumn<AttendanceRecord, String> reportMarkedByColumn;
+    @FXML private TableColumn<AttendanceRecord, String> reportMarkedAtColumn;
     @FXML private Label reportCountLabel;
     @FXML private Label reportAttendanceRateLabel;
 
@@ -195,6 +201,20 @@ public class MainController {
         reportStudentNameColumn.setCellValueFactory(new PropertyValueFactory<>("studentName"));
         reportDateColumn.setCellValueFactory(new PropertyValueFactory<>("attendanceDate"));
         reportStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+
+        reportMarkedByColumn.setCellValueFactory(cellData -> {
+            String username = cellData.getValue().getMarkedByUsername();
+
+            if (username == null || username.isBlank()) {
+                return new SimpleStringProperty("Not recorded");
+            }
+
+            return new SimpleStringProperty(username);
+        });
+
+        reportMarkedAtColumn.setCellValueFactory(cellData ->
+                new SimpleStringProperty(formatMarkedAt(cellData.getValue()))
+        );
 
         reportTable.setItems(reportItems);
     }
@@ -505,6 +525,12 @@ public class MainController {
     private void handleRunReport() {
         try {
             Course selectedCourse = reportCourseComboBox.getValue();
+
+            if (isLecturerUser() && selectedCourse == null) {
+                showError("Lecturers must select one of their assigned courses before running a report.");
+                return;
+            }
+
             Integer courseId = selectedCourse == null ? null : selectedCourse.getId();
 
             List<AttendanceRecord> records = attendanceService.getReport(
@@ -547,7 +573,7 @@ public class MainController {
 
         if (file != null) {
             try (BufferedWriter writer = Files.newBufferedWriter(file.toPath(), StandardCharsets.UTF_8)) {
-                writer.write("Course Code,Student Number,Student Name,Attendance Date,Status");
+                writer.write("Course Code,Student Number,Student Name,Attendance Date,Status,Marked By,Marked At");
                 writer.newLine();
 
                 for (AttendanceRecord record : reportItems) {
@@ -555,7 +581,9 @@ public class MainController {
                             + csv(record.getStudentNumber()) + ","
                             + csv(record.getStudentName()) + ","
                             + csv(record.getAttendanceDate().toString()) + ","
-                            + csv(record.getStatus().getDisplayName()));
+                            + csv(record.getStatus().getDisplayName()) + ","
+                            + csv(record.getMarkedByUsername()) + ","
+                            + csv(formatMarkedAt(record)));
                     writer.newLine();
                 }
 
@@ -726,7 +754,16 @@ public class MainController {
     }
 
     private String csv(String value) {
-        return "\"" + value.replace("\"", "\"\"") + "\"";
+        String safeValue = value == null ? "" : value;
+        return "\"" + safeValue.replace("\"", "\"\"") + "\"";
+    }
+
+    private String formatMarkedAt(AttendanceRecord record) {
+        if (record.getMarkedAt() == null) {
+            return "Not recorded";
+        }
+
+        return record.getMarkedAt().format(REPORT_DATE_TIME_FORMATTER);
     }
 
     private boolean confirm(String title, String message) {
