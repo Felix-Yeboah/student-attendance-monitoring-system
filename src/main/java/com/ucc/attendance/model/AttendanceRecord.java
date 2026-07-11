@@ -1,19 +1,26 @@
 package com.ucc.attendance.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * Represents one student's attendance status for one course on one date.
  */
 public class AttendanceRecord {
+
     private int id;
     private int studentId;
     private int courseId;
     private LocalDate attendanceDate;
     private AttendanceStatus status;
+
     private String studentNumber;
     private String studentName;
     private String courseCode;
+
+    private Integer markedByUserId;
+    private String markedByUsername;
+    private LocalDateTime markedAt;
 
     public AttendanceRecord() {
         // Default constructor.
@@ -32,67 +39,74 @@ public class AttendanceRecord {
         this.courseCode = courseCode;
     }
 
-    public int getId() {
-        return id;
+    public AttendanceRecord(int id, int studentId, int courseId, LocalDate attendanceDate,
+                            AttendanceStatus status, String studentNumber,
+                            String studentName, String courseCode,
+                            Integer markedByUserId, String markedByUsername,
+                            LocalDateTime markedAt) {
+        this(id, studentId, courseId, attendanceDate, status, studentNumber, studentName, courseCode);
+        this.markedByUserId = markedByUserId;
+        this.markedByUsername = markedByUsername;
+        this.markedAt = markedAt;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public int getId() {
+        return id;
     }
 
     public int getStudentId() {
         return studentId;
     }
 
-    public void setStudentId(int studentId) {
-        this.studentId = studentId;
-    }
-
     public int getCourseId() {
         return courseId;
-    }
-
-    public void setCourseId(int courseId) {
-        this.courseId = courseId;
     }
 
     public LocalDate getAttendanceDate() {
         return attendanceDate;
     }
 
-    public void setAttendanceDate(LocalDate attendanceDate) {
-        this.attendanceDate = attendanceDate;
-    }
-
     public AttendanceStatus getStatus() {
         return status;
-    }
-
-    public void setStatus(AttendanceStatus status) {
-        this.status = status;
     }
 
     public String getStudentNumber() {
         return studentNumber;
     }
 
-    public void setStudentNumber(String studentNumber) {
-        this.studentNumber = studentNumber;
-    }
-
     public String getStudentName() {
         return studentName;
-    }
-
-    public void setStudentName(String studentName) {
-        this.studentName = studentName;
     }
 
     public String getCourseCode() {
         return courseCode;
     }
 
-    public void setCourseCode(String courseCode) {
-        this.courseCode = courseCode;
+    public Integer getMarkedByUserId() {
+        return markedByUserId;
+    }
+
+    public String getMarkedByUsername() {
+        return markedByUsername;
+    }
+
+    public LocalDateTime getMarkedAt() {
+        return markedAt;
+    }
+
+    public void setStatus(AttendanceStatus status) {
+        this.status = status;
+    }
+
+    public void setMarkedByUserId(Integer markedByUserId) {
+        this.markedByUserId = markedByUserId;
+    }
+
+    public void setMarkedByUsername(String markedByUsername) {
+        this.markedByUsername = markedByUsername;
+    }
+
+    public void setMarkedAt(LocalDateTime markedAt) {
+        this.markedAt = markedAt;
     }
 }

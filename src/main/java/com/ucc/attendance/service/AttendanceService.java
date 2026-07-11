@@ -13,14 +13,15 @@ import java.util.List;
  * Business layer between the JavaFX controller and attendance database queries.
  */
 public class AttendanceService {
+
     private final AttendanceDao attendanceDao = new AttendanceDao();
 
     public List<AttendanceRecord> loadRegister(Course course, LocalDate attendanceDate) {
         return attendanceDao.getRegister(course.getId(), attendanceDate);
     }
 
-    public void saveAttendance(List<AttendanceRecord> records) {
-        attendanceDao.saveAll(records);
+    public void saveAttendance(List<AttendanceRecord> records, int markedByUserId) {
+        attendanceDao.saveAll(records, markedByUserId);
     }
 
     public List<AttendanceRecord> getReport(Integer courseId, LocalDate attendanceDate,

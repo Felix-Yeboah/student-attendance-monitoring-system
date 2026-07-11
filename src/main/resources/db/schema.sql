@@ -36,23 +36,29 @@ CREATE TABLE IF NOT EXISTS courses (
         ON DELETE SET NULL
 );
 
-CREATE TABLE IF NOT EXISTS attendance_records (
+CREATE TABLE IF NOT EXISTS attendance (
     id INT AUTO_INCREMENT PRIMARY KEY,
     student_id INT NOT NULL,
     course_id INT NOT NULL,
     attendance_date DATE NOT NULL,
-    status ENUM('PRESENT', 'ABSENT', 'LATE') NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('PRESENT', 'LATE', 'ABSENT') NOT NULL,
+    marked_by_user_id INT NULL,
+    marked_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     FOREIGN KEY (student_id)
         REFERENCES students(id)
         ON UPDATE CASCADE
-        ON DELETE CASCADE,
+        ON DELETE RESTRICT,
 
     FOREIGN KEY (course_id)
         REFERENCES courses(id)
         ON UPDATE CASCADE
-        ON DELETE CASCADE,
+        ON DELETE RESTRICT,
+
+    FOREIGN KEY (marked_by_user_id)
+        REFERENCES users(id)
+        ON UPDATE CASCADE
+        ON DELETE SET NULL,
 
     UNIQUE (student_id, course_id, attendance_date)
 );

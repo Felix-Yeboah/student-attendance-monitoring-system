@@ -11,72 +11,80 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Handles attendance-specific database queries, including batch saving and reporting.
+ * Handles attendance database operations.
  */
 public class AttendanceDao {
+
     public List<AttendanceRecord> getRegister(int courseId, LocalDate attendanceDate) {
         String sql = """
                 SELECT COALESCE(a.id, 0) AS attendance_id,
                        s.id AS student_id,
-                       s.student_number,
-                       CONCAT(s.first_name, ' ', s.last_name) AS student_name,
-                       ? AS course_id,
+                       c.id AS course_id,
                        ? AS attendance_date,
                        COALESCE(a.status, 'PRESENT') AS status,
-                       c.course_code
+                       s.student_number,
+                       CONCAT(s.first_name, ' ', s.last_name) AS student_name,
+                       c.course_code,
+                       a.marked_by_user_id,
+                       u.username AS marked_by_username,
+                       a.marked_at
                 FROM students s
                 CROSS JOIN courses c
                 LEFT JOIN attendance a ON a.student_id = s.id
                     AND a.course_id = c.id
                     AND a.attendance_date = ?
-                WHERE c.id = ? AND s.active = TRUE
+                LEFT JOIN users u ON u.id = a.marked_by_user_id
+                WHERE c.id = ?
+                AND s.active = TRUE
                 ORDER BY s.student_number
                 """;
 
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            statement.setInt(1, courseId);
+            statement.setDate(1, Date.valueOf(attendanceDate));
             statement.setDate(2, Date.valueOf(attendanceDate));
-            statement.setDate(3, Date.valueOf(attendanceDate));
-            statement.setInt(4, courseId);
+            statement.setInt(3, courseId);
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 List<AttendanceRecord> records = new ArrayList<>();
+
                 while (resultSet.next()) {
-                    records.add(new AttendanceRecord(
-                            resultSet.getInt("attendance_id"),
-                            resultSet.getInt("student_id"),
-                            resultSet.getInt("course_id"),
-                            resultSet.getDate("attendance_date").toLocalDate(),
-                            AttendanceStatus.valueOf(resultSet.getString("status")),
-                            resultSet.getString("student_number"),
-                            resultSet.getString("student_name"),
-                            resultSet.getString("course_code")
-                    ));
+                    records.add(mapRecord(resultSet));
                 }
+
                 return records;
             }
+
         } catch (SQLException exception) {
             throw new DataAccessException("Could not load the attendance register.", exception);
         }
     }
 
-    public void saveAll(List<AttendanceRecord> records) {
+    public void saveAll(List<AttendanceRecord> records, int markedByUserId) {
         if (records.isEmpty()) {
             return;
         }
 
         String sql = """
-                INSERT INTO attendance (student_id, course_id, attendance_date, status)
-                VALUES (?, ?, ?, ?)
+                INSERT INTO attendance (
+                    student_id,
+                    course_id,
+                    attendance_date,
+                    status,
+                    marked_by_user_id
+                )
+                VALUES (?, ?, ?, ?, ?)
                 ON DUPLICATE KEY UPDATE
                     status = VALUES(status),
+                    marked_by_user_id = VALUES(marked_by_user_id),
                     marked_at = CURRENT_TIMESTAMP
                 """;
 
@@ -84,15 +92,19 @@ public class AttendanceDao {
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
             connection.setAutoCommit(false);
+
             for (AttendanceRecord record : records) {
                 statement.setInt(1, record.getStudentId());
                 statement.setInt(2, record.getCourseId());
                 statement.setDate(3, Date.valueOf(record.getAttendanceDate()));
                 statement.setString(4, record.getStatus().name());
+                statement.setInt(5, markedByUserId);
                 statement.addBatch();
             }
+
             statement.executeBatch();
             connection.commit();
+
         } catch (SQLException exception) {
             throw new DataAccessException("Could not save attendance records.", exception);
         }
@@ -101,28 +113,41 @@ public class AttendanceDao {
     public List<AttendanceRecord> findRecords(Integer courseId, LocalDate attendanceDate,
                                               AttendanceStatus status) {
         StringBuilder sql = new StringBuilder("""
-                SELECT a.id AS attendance_id, a.student_id, a.course_id, a.attendance_date, a.status,
-                       s.student_number, CONCAT(s.first_name, ' ', s.last_name) AS student_name,
-                       c.course_code
+                SELECT a.id AS attendance_id,
+                       a.student_id,
+                       a.course_id,
+                       a.attendance_date,
+                       a.status,
+                       s.student_number,
+                       CONCAT(s.first_name, ' ', s.last_name) AS student_name,
+                       c.course_code,
+                       a.marked_by_user_id,
+                       u.username AS marked_by_username,
+                       a.marked_at
                 FROM attendance a
                 INNER JOIN students s ON s.id = a.student_id
                 INNER JOIN courses c ON c.id = a.course_id
+                LEFT JOIN users u ON u.id = a.marked_by_user_id
                 WHERE 1 = 1
                 """);
+
         List<Object> parameters = new ArrayList<>();
 
         if (courseId != null) {
             sql.append(" AND a.course_id = ?");
             parameters.add(courseId);
         }
+
         if (attendanceDate != null) {
             sql.append(" AND a.attendance_date = ?");
             parameters.add(Date.valueOf(attendanceDate));
         }
+
         if (status != null) {
             sql.append(" AND a.status = ?");
             parameters.add(status.name());
         }
+
         sql.append(" ORDER BY a.attendance_date DESC, c.course_code, s.student_number");
 
         try (Connection connection = DatabaseManager.getConnection();
@@ -134,11 +159,14 @@ public class AttendanceDao {
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 List<AttendanceRecord> records = new ArrayList<>();
+
                 while (resultSet.next()) {
                     records.add(mapRecord(resultSet));
                 }
+
                 return records;
             }
+
         } catch (SQLException exception) {
             throw new DataAccessException("Could not load the attendance report.", exception);
         }
@@ -160,6 +188,7 @@ public class AttendanceDao {
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setDate(1, Date.valueOf(date));
+
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
                     return new DashboardStatistics(
@@ -170,14 +199,24 @@ public class AttendanceDao {
                             resultSet.getInt("absent_count")
                     );
                 }
+
                 return new DashboardStatistics(0, 0, 0, 0, 0);
             }
+
         } catch (SQLException exception) {
             throw new DataAccessException("Could not load dashboard statistics.", exception);
         }
     }
 
     private AttendanceRecord mapRecord(ResultSet resultSet) throws SQLException {
+        Integer markedByUserId = null;
+
+        int rawMarkedByUserId = resultSet.getInt("marked_by_user_id");
+
+        if (!resultSet.wasNull()) {
+            markedByUserId = rawMarkedByUserId;
+        }
+
         return new AttendanceRecord(
                 resultSet.getInt("attendance_id"),
                 resultSet.getInt("student_id"),
@@ -186,7 +225,14 @@ public class AttendanceDao {
                 AttendanceStatus.valueOf(resultSet.getString("status")),
                 resultSet.getString("student_number"),
                 resultSet.getString("student_name"),
-                resultSet.getString("course_code")
+                resultSet.getString("course_code"),
+                markedByUserId,
+                resultSet.getString("marked_by_username"),
+                toLocalDateTime(resultSet.getTimestamp("marked_at"))
         );
+    }
+
+    private LocalDateTime toLocalDateTime(Timestamp timestamp) {
+        return timestamp == null ? null : timestamp.toLocalDateTime();
     }
 }

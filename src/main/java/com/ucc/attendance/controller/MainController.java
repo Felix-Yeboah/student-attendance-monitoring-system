@@ -482,10 +482,20 @@ public class MainController {
             return;
         }
 
+        User currentUser = SessionManager.getCurrentUser();
+
+        if (currentUser == null) {
+            showError("Your session has expired. Please log in again.");
+            return;
+        }
+
         try {
-            attendanceService.saveAttendance(attendanceItems);
+            attendanceService.saveAttendance(attendanceItems, currentUser.getId());
             loadDashboard();
-            showInformation("Attendance saved for " + attendanceItems.size() + " student(s).");
+
+            showInformation("Attendance saved for " + attendanceItems.size()
+                    + " student(s) by " + currentUser.getFullName() + ".");
+
         } catch (DataAccessException exception) {
             showError(exception.getMessage());
         }
