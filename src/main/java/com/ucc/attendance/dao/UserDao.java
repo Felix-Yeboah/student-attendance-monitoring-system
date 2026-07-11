@@ -125,4 +125,36 @@ public class UserDao {
                 resultSet.getBoolean("active")
         );
     }
+
+    public boolean resetPassword(String username, String currentPassword, String newPassword) {
+        Optional<User> optionalUser = authenticate(username, currentPassword);
+
+        if (optionalUser.isEmpty()) {
+            return false;
+        }
+
+        User user = optionalUser.get();
+
+        String newSalt = PasswordUtil.generateSalt();
+        String newHash = PasswordUtil.hashPassword(newPassword, newSalt);
+
+        String sql = """
+            UPDATE users
+            SET password_salt = ?, password_hash = ?
+            WHERE id = ?
+            """;
+
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, newSalt);
+            statement.setString(2, newHash);
+            statement.setInt(3, user.getId());
+
+            return statement.executeUpdate() == 1;
+
+        } catch (SQLException exception) {
+            throw new DataAccessException("Could not reset user password.", exception);
+        }
+    }
 }

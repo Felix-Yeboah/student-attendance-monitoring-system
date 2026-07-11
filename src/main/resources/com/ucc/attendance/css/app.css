@@ -485,3 +485,117 @@
     -fx-text-fill: #64748b;
     -fx-text-alignment: center;
 }
+
+/* eLOGIN SCREEN */
+
+.login-root {
+    -fx-background-color: linear-gradient(to bottom right, #082f49, #0f4c81, #0e7490);
+}
+
+.login-card {
+    -fx-background-color: rgba(255, 255, 255, 0.98);
+    -fx-background-radius: 24;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.32), 26, 0.25, 0, 9);
+    -fx-max-width: 390;
+    -fx-border-color: rgba(255, 255, 255, 0.45);
+    -fx-border-radius: 24;
+    -fx-border-width: 1;
+}
+
+.login-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.40), 32, 0.30, 0, 11);
+}
+
+.login-logo {
+    -fx-background-color: linear-gradient(to bottom right, #0f75bc, #0e7490);
+    -fx-background-radius: 999;
+    -fx-min-width: 58;
+    -fx-min-height: 58;
+    -fx-alignment: center;
+    -fx-text-fill: white;
+    -fx-font-size: 18px;
+    -fx-font-weight: 900;
+    -fx-effect: dropshadow(gaussian, rgba(15, 117, 188, 0.35), 12, 0.25, 0, 3);
+}
+
+.login-logo:hover {
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.login-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #0f172a;
+    -fx-text-alignment: center;
+}
+
+.login-subtitle {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748b;
+    -fx-text-alignment: center;
+}
+
+.reset-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #0f4c81;
+}
+
+.login-main-button {
+    -fx-pref-height: 40;
+}
+
+.login-message {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-alignment: center;
+}
+
+.login-hint {
+    -fx-font-size: 10.5px;
+    -fx-text-fill: #64748b;
+    -fx-text-alignment: center;
+}
+
+.link-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #0f75bc;
+    -fx-font-weight: bold;
+    -fx-padding: 4 8 4 8;
+    -fx-cursor: hand;
+}
+
+.link-button:hover {
+    -fx-text-fill: #0b5f99;
+    -fx-underline: true;
+}
+
+/* Better interactive login inputs */
+.login-card .text-field,
+.login-card .password-field {
+    -fx-pref-height: 38;
+    -fx-background-color: #f8fafc;
+    -fx-background-radius: 10;
+    -fx-border-color: #cbd5e1;
+    -fx-border-radius: 10;
+    -fx-padding: 0 12 0 12;
+}
+
+.login-card .text-field:hover,
+.login-card .password-field:hover {
+    -fx-border-color: #93c5fd;
+    -fx-background-color: #ffffff;
+}
+
+.login-card .text-field:focused,
+.login-card .password-field:focused {
+    -fx-border-color: #0f75bc;
+    -fx-background-color: #ffffff;
+    -fx-effect: dropshadow(gaussian, rgba(15, 117, 188, 0.20), 10, 0.25, 0, 0);
+}
+
+.login-card .button:hover {
+    -fx-scale-x: 1.015;
+    -fx-scale-y: 1.015;
+}
