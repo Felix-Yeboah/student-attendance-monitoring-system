@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import com.ucc.attendance.dao.UserDao;
+import com.ucc.attendance.controller.LoginController;
 
 /**
  * JavaFX entry point. It prepares the database, loads the FXML user interface,
@@ -27,11 +29,13 @@ public class App extends Application {
     public void start(Stage primaryStage) {
         try {
             DatabaseInitializer.initialize();
-
+            new UserDao().ensureDefaultUsers();
             FXMLLoader loader = new FXMLLoader(
-                    App.class.getResource("/com/ucc/attendance/fxml/main-view.fxml")
+                    App.class.getResource("/com/ucc/attendance/fxml/login-view.fxml")
             );
             Pane root = loader.load();
+            LoginController controller = loader.getController();
+            controller.setPrimaryStage(primaryStage);
 
             Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
 

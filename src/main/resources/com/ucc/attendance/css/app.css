@@ -447,3 +447,41 @@
     -fx-font-size: 36px;
     -fx-font-weight: 900;
 }
+
+/* =========================
+   LOGIN SCREEN
+   ========================= */
+
+.login-root {
+    -fx-background-color: linear-gradient(to bottom right, #082f49, #0f4c81, #0e7490);
+}
+
+.login-card {
+    -fx-background-color: white;
+    -fx-background-radius: 22;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.28), 24, 0.25, 0, 8);
+    -fx-max-width: 460;
+}
+
+.login-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #0f172a;
+    -fx-text-alignment: center;
+}
+
+.login-subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: #64748b;
+}
+
+.login-message {
+    -fx-text-fill: #dc2626;
+    -fx-font-weight: bold;
+}
+
+.login-hint {
+    -fx-font-size: 11px;
+    -fx-text-fill: #64748b;
+    -fx-text-alignment: center;
+}
