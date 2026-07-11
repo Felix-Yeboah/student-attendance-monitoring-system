@@ -30,6 +30,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -56,6 +58,8 @@ import java.util.Optional;
  */
 public class MainController {
 
+    private static final int MIN_PASSWORD_LENGTH = 8;
+
     private static final DateTimeFormatter REPORT_DATE_TIME_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
@@ -66,6 +70,7 @@ public class MainController {
 
     private final ObservableList<Student> studentItems = FXCollections.observableArrayList();
     private final ObservableList<Course> courseItems = FXCollections.observableArrayList();
+    private final ObservableList<User> userItems = FXCollections.observableArrayList();
     private final ObservableList<AttendanceRecord> attendanceItems = FXCollections.observableArrayList();
     private final ObservableList<AttendanceRecord> reportItems = FXCollections.observableArrayList();
 
@@ -109,6 +114,18 @@ public class MainController {
     @FXML private TableColumn<Course, String> courseLecturerColumn;
     @FXML private TableColumn<Course, String> courseSemesterColumn;
 
+    @FXML private Tab usersTab;
+    @FXML private TextField userFullNameField;
+    @FXML private TextField userUsernameField;
+    @FXML private PasswordField userPasswordField;
+    @FXML private ComboBox<UserRole> userRoleComboBox;
+    @FXML private TableView<User> userTable;
+    @FXML private TableColumn<User, Integer> userIdColumn;
+    @FXML private TableColumn<User, String> userFullNameColumn;
+    @FXML private TableColumn<User, String> userUsernameColumn;
+    @FXML private TableColumn<User, String> userRoleColumn;
+    @FXML private TableColumn<User, String> userActiveColumn;
+
     @FXML private ComboBox<Course> attendanceCourseComboBox;
     @FXML private DatePicker attendanceDatePicker;
     @FXML private TableView<AttendanceRecord> attendanceTable;
@@ -134,10 +151,12 @@ public class MainController {
     public void initialize() {
         configureStudentTable();
         configureCourseTable();
+        configureUserTable();
         configureAttendanceTable();
         configureReportTable();
 
         studentGenderComboBox.getItems().addAll("Female", "Male", "Prefer not to say");
+        userRoleComboBox.getItems().addAll(UserRole.values());
         reportStatusComboBox.getItems().addAll(AttendanceStatus.values());
         attendanceDatePicker.setValue(LocalDate.now());
 
@@ -177,6 +196,22 @@ public class MainController {
         courseSemesterColumn.setCellValueFactory(new PropertyValueFactory<>("semester"));
 
         courseTable.setItems(courseItems);
+    }
+
+    private void configureUserTable() {
+        userIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        userFullNameColumn.setCellValueFactory(new PropertyValueFactory<>("fullName"));
+        userUsernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
+
+        userRoleColumn.setCellValueFactory(cellData ->
+                new SimpleStringProperty(cellData.getValue().getRole().name()));
+
+        userActiveColumn.setCellValueFactory(cellData -> {
+            boolean active = cellData.getValue().isActive();
+            return new SimpleStringProperty(active ? "Active" : "Inactive");
+        });
+
+        userTable.setItems(userItems);
     }
 
     private void configureAttendanceTable() {
@@ -226,6 +261,7 @@ public class MainController {
             loggedInUserLabel.setText("Unknown User");
             loggedInRoleLabel.setText("NO SESSION");
             disableAdministrativeFeatures(true);
+            usersTab.setDisable(true);
             return;
         }
 
@@ -233,7 +269,9 @@ public class MainController {
         loggedInRoleLabel.setText(currentUser.getRole().name());
 
         boolean lecturerUser = currentUser.getRole() == UserRole.LECTURER;
+
         disableAdministrativeFeatures(lecturerUser);
+        usersTab.setDisable(lecturerUser);
     }
 
     private void disableAdministrativeFeatures(boolean disabled) {
@@ -474,6 +512,114 @@ public class MainController {
     }
 
     @FXML
+    private void handleCreateUser() {
+        if (!requireAdminAccess()) {
+            return;
+        }
+
+        try {
+            String fullName = InputValidator.requireText(userFullNameField.getText(), "Full name");
+            String username = InputValidator.requireText(userUsernameField.getText(), "Username");
+            String password = userPasswordField.getText();
+            UserRole role = userRoleComboBox.getValue();
+
+            if (password == null || password.isBlank()) {
+                throw new ValidationException("Temporary password is required.");
+            }
+
+            if (password.length() < MIN_PASSWORD_LENGTH) {
+                throw new ValidationException("Password must be at least 8 characters.");
+            }
+
+            if (role == null) {
+                throw new ValidationException("Select a user role.");
+            }
+
+            userDao.createUser(fullName, username, password, role);
+
+            clearUserForm();
+            loadUsers();
+
+            showInformation("User account created successfully.");
+
+        } catch (ValidationException | DataAccessException exception) {
+            showError(exception.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleClearUserForm() {
+        if (!requireAdminAccess()) {
+            return;
+        }
+
+        clearUserForm();
+    }
+
+    @FXML
+    private void handleDeactivateUser() {
+        if (!requireAdminAccess()) {
+            return;
+        }
+
+        User selectedUser = userTable.getSelectionModel().getSelectedItem();
+
+        if (selectedUser == null) {
+            showError("Select a user before choosing Deactivate.");
+            return;
+        }
+
+        User currentUser = SessionManager.getCurrentUser();
+
+        if (currentUser != null && currentUser.getId() == selectedUser.getId()) {
+            showError("You cannot deactivate the account you are currently using.");
+            return;
+        }
+
+        if (!selectedUser.isActive()) {
+            showInformation("This user is already inactive.");
+            return;
+        }
+
+        userDao.updateActiveStatus(selectedUser.getId(), false);
+        loadUsers();
+
+        showInformation("User account deactivated successfully.");
+    }
+
+    @FXML
+    private void handleActivateUser() {
+        if (!requireAdminAccess()) {
+            return;
+        }
+
+        User selectedUser = userTable.getSelectionModel().getSelectedItem();
+
+        if (selectedUser == null) {
+            showError("Select a user before choosing Activate.");
+            return;
+        }
+
+        if (selectedUser.isActive()) {
+            showInformation("This user is already active.");
+            return;
+        }
+
+        userDao.updateActiveStatus(selectedUser.getId(), true);
+        loadUsers();
+
+        showInformation("User account activated successfully.");
+    }
+
+    private void clearUserForm() {
+        userTable.getSelectionModel().clearSelection();
+        userFullNameField.clear();
+        userUsernameField.clear();
+        userPasswordField.clear();
+        userRoleComboBox.setValue(null);
+    }
+
+    @FXML
     private void handleLoadRegister() {
         Course selectedCourse = attendanceCourseComboBox.getValue();
         LocalDate selectedDate = attendanceDatePicker.getValue();
@@ -651,6 +797,13 @@ public class MainController {
         loadStudents();
         loadCourses();
         loadDashboard();
+
+        if (isAdminUser()) {
+            loadUsers();
+        } else {
+            userItems.clear();
+        }
+
         handleClearReportFilters();
     }
 
@@ -690,6 +843,14 @@ public class MainController {
             selectCourseById(attendanceCourseComboBox, attendanceCourseId);
             selectCourseById(reportCourseComboBox, reportCourseId);
 
+        } catch (DataAccessException exception) {
+            showError(exception.getMessage());
+        }
+    }
+
+    private void loadUsers() {
+        try {
+            userItems.setAll(userDao.findAll());
         } catch (DataAccessException exception) {
             showError(exception.getMessage());
         }

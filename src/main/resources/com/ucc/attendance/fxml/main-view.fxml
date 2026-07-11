@@ -8,6 +8,7 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
@@ -51,7 +52,7 @@
                     <Label text="Student Attendance Monitoring System"
                            styleClass="brand-title" />
 
-                    <Label text="Manage students, courses, attendance registers, and reports"
+                    <Label text="Manage students, courses, users, attendance registers, and reports"
                            styleClass="brand-subtitle" />
                 </VBox>
 
@@ -338,6 +339,88 @@
             </Tab>
 
             <!-- =========================
+                 USERS TAB
+                 ========================= -->
+            <Tab fx:id="usersTab" text="Users">
+                <ScrollPane fitToWidth="true" styleClass="page-scroll">
+                    <content>
+                        <VBox spacing="20.0" styleClass="page-container">
+                            <padding>
+                                <Insets top="24.0" right="28.0" bottom="28.0" left="28.0" />
+                            </padding>
+
+                            <VBox spacing="6.0">
+                                <Label text="User Management"
+                                       styleClass="page-title" />
+
+                                <Label text="Create administrator and lecturer accounts, and activate or deactivate users."
+                                       styleClass="page-subtitle" />
+                            </VBox>
+
+                            <GridPane hgap="14.0" vgap="12.0" styleClass="form-card">
+                                <padding>
+                                    <Insets top="18.0" right="18.0" bottom="18.0" left="18.0" />
+                                </padding>
+
+                                <Label text="Full Name" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                                <TextField fx:id="userFullNameField"
+                                           promptText="Example: Ama Mensah"
+                                           GridPane.rowIndex="0"
+                                           GridPane.columnIndex="1" />
+
+                                <Label text="Username" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+                                <TextField fx:id="userUsernameField"
+                                           promptText="Example: amensah"
+                                           GridPane.rowIndex="1"
+                                           GridPane.columnIndex="1" />
+
+                                <Label text="Temporary Password" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+                                <PasswordField fx:id="userPasswordField"
+                                               promptText="At least 8 characters"
+                                               GridPane.rowIndex="2"
+                                               GridPane.columnIndex="1" />
+
+                                <Label text="Role" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+                                <ComboBox fx:id="userRoleComboBox"
+                                          promptText="Select role"
+                                          prefWidth="260.0"
+                                          GridPane.rowIndex="3"
+                                          GridPane.columnIndex="1" />
+
+                                <HBox spacing="10.0" GridPane.rowIndex="4" GridPane.columnIndex="1">
+                                    <Button text="Create User"
+                                            onAction="#handleCreateUser"
+                                            styleClass="primary-button" />
+
+                                    <Button text="Clear"
+                                            onAction="#handleClearUserForm"
+                                            styleClass="secondary-button" />
+
+                                    <Button text="Activate"
+                                            onAction="#handleActivateUser"
+                                            styleClass="secondary-button" />
+
+                                    <Button text="Deactivate"
+                                            onAction="#handleDeactivateUser"
+                                            styleClass="danger-button" />
+                                </HBox>
+                            </GridPane>
+
+                            <TableView fx:id="userTable" prefHeight="420.0">
+                                <columns>
+                                    <TableColumn fx:id="userIdColumn" text="ID" prefWidth="60.0" />
+                                    <TableColumn fx:id="userFullNameColumn" text="Full Name" prefWidth="250.0" />
+                                    <TableColumn fx:id="userUsernameColumn" text="Username" prefWidth="170.0" />
+                                    <TableColumn fx:id="userRoleColumn" text="Role" prefWidth="140.0" />
+                                    <TableColumn fx:id="userActiveColumn" text="Status" prefWidth="140.0" />
+                                </columns>
+                            </TableView>
+                        </VBox>
+                    </content>
+                </ScrollPane>
+            </Tab>
+
+            <!-- =========================
                  ATTENDANCE TAB
                  ========================= -->
             <Tab text="Attendance">
@@ -414,7 +497,7 @@
                                 <Label text="Attendance Reports"
                                        styleClass="page-title" />
 
-                                <Label text="Filter attendance records by course, date, or attendance status."
+                                <Label text="Filter attendance records by course, date, or attendance status, including audit details."
                                        styleClass="page-subtitle" />
                             </VBox>
 
@@ -476,15 +559,15 @@
 
                                     <TableColumn fx:id="reportStudentNameColumn"
                                                  text="Student Name"
-                                                 prefWidth="260.0" />
+                                                 prefWidth="240.0" />
 
                                     <TableColumn fx:id="reportDateColumn"
                                                  text="Date"
-                                                 prefWidth="140.0" />
+                                                 prefWidth="120.0" />
 
                                     <TableColumn fx:id="reportStatusColumn"
                                                  text="Status"
-                                                 prefWidth="130.0" />
+                                                 prefWidth="120.0" />
 
                                     <TableColumn fx:id="reportMarkedByColumn"
                                                  text="Marked By"

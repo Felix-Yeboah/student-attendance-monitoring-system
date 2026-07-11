@@ -2,6 +2,7 @@ package com.ucc.attendance.dao;
 
 import com.ucc.attendance.database.DatabaseManager;
 import com.ucc.attendance.exception.DataAccessException;
+import com.ucc.attendance.exception.ValidationException;
 import com.ucc.attendance.model.User;
 import com.ucc.attendance.model.UserRole;
 import com.ucc.attendance.security.PasswordUtil;
@@ -10,6 +11,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -42,6 +45,30 @@ public class UserDao {
         }
     }
 
+    public List<User> findAll() {
+        String sql = """
+                SELECT id, full_name, username, password_salt, password_hash, role, active
+                FROM users
+                ORDER BY role, full_name
+                """;
+
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
+
+            List<User> users = new ArrayList<>();
+
+            while (resultSet.next()) {
+                users.add(mapRow(resultSet));
+            }
+
+            return users;
+
+        } catch (SQLException exception) {
+            throw new DataAccessException("Could not load users.", exception);
+        }
+    }
+
     public Optional<User> authenticate(String username, String password) {
         Optional<User> optionalUser = findByUsername(username);
 
@@ -64,33 +91,52 @@ public class UserDao {
         return validPassword ? Optional.of(user) : Optional.empty();
     }
 
-    public void ensureDefaultUsers() {
-        String countSql = "SELECT COUNT(*) FROM users";
+    public void createUser(String fullName, String username, String plainPassword, UserRole role) {
+        if (findByUsername(username).isPresent()) {
+            throw new ValidationException("A user with this username already exists.");
+        }
+
+        String salt = PasswordUtil.generateSalt();
+        String hash = PasswordUtil.hashPassword(plainPassword, salt);
+
+        String sql = """
+                INSERT INTO users (full_name, username, password_salt, password_hash, role, active)
+                VALUES (?, ?, ?, ?, ?, TRUE)
+                """;
 
         try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(countSql);
-             ResultSet resultSet = statement.executeQuery()) {
+             PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            if (resultSet.next() && resultSet.getInt(1) == 0) {
-                createDefaultUser(
-                        connection,
-                        "System Administrator",
-                        "admin",
-                        "Admin@2026",
-                        UserRole.ADMIN
-                );
+            statement.setString(1, fullName);
+            statement.setString(2, username);
+            statement.setString(3, salt);
+            statement.setString(4, hash);
+            statement.setString(5, role.name());
 
-                createDefaultUser(
-                        connection,
-                        "Example Lecturer",
-                        "lecturer",
-                        "Lecturer@2026",
-                        UserRole.LECTURER
-                );
-            }
+            statement.executeUpdate();
 
         } catch (SQLException exception) {
-            throw new DataAccessException("Could not prepare default user accounts.", exception);
+            throw new DataAccessException("Could not create user account.", exception);
+        }
+    }
+
+    public void updateActiveStatus(int userId, boolean active) {
+        String sql = """
+                UPDATE users
+                SET active = ?
+                WHERE id = ?
+                """;
+
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setBoolean(1, active);
+            statement.setInt(2, userId);
+
+            statement.executeUpdate();
+
+        } catch (SQLException exception) {
+            throw new DataAccessException("Could not update user status.", exception);
         }
     }
 
@@ -126,6 +172,36 @@ public class UserDao {
         }
     }
 
+    public void ensureDefaultUsers() {
+        String countSql = "SELECT COUNT(*) FROM users";
+
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(countSql);
+             ResultSet resultSet = statement.executeQuery()) {
+
+            if (resultSet.next() && resultSet.getInt(1) == 0) {
+                createDefaultUser(
+                        connection,
+                        "System Administrator",
+                        "admin",
+                        "Admin@2026",
+                        UserRole.ADMIN
+                );
+
+                createDefaultUser(
+                        connection,
+                        "Example Lecturer",
+                        "lecturer",
+                        "Lecturer@2026",
+                        UserRole.LECTURER
+                );
+            }
+
+        } catch (SQLException exception) {
+            throw new DataAccessException("Could not prepare default user accounts.", exception);
+        }
+    }
+
     private void createDefaultUser(Connection connection, String fullName, String username,
                                    String plainPassword, UserRole role) throws SQLException {
         String salt = PasswordUtil.generateSalt();
@@ -142,6 +218,7 @@ public class UserDao {
             statement.setString(3, salt);
             statement.setString(4, hash);
             statement.setString(5, role.name());
+
             statement.executeUpdate();
         }
     }
