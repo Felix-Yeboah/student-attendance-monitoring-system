@@ -107,7 +107,7 @@ public class LoginController {
 
         if (username.isBlank() || currentPassword.isBlank()
                 || newPassword.isBlank() || confirmPassword.isBlank()) {
-            showErrorMessage(resetMessageLabel, "All password reset fields are required.");
+            showErrorMessage(resetMessageLabel, "All reset fields are required.");
             return;
         }
 
@@ -117,12 +117,12 @@ public class LoginController {
         }
 
         if (!newPassword.equals(confirmPassword)) {
-            showErrorMessage(resetMessageLabel, "New password and confirmation do not match.");
+            showErrorMessage(resetMessageLabel, "New passwords do not match.");
             return;
         }
 
         if (currentPassword.equals(newPassword)) {
-            showErrorMessage(resetMessageLabel, "New password must be different from the current password.");
+            showErrorMessage(resetMessageLabel, "New password must be different.");
             return;
         }
 
@@ -141,7 +141,7 @@ public class LoginController {
         passwordField.clear();
 
         showLoginForm();
-        showSuccessMessage(loginMessageLabel, "Password changed successfully. Please login again.");
+        showSuccessMessage(loginMessageLabel, "Password changed. Please login again.");
     }
 
     private void openMainApplication() {

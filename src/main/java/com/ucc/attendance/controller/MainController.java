@@ -9,12 +9,18 @@ import com.ucc.attendance.model.AttendanceStatus;
 import com.ucc.attendance.model.Course;
 import com.ucc.attendance.model.DashboardStatistics;
 import com.ucc.attendance.model.Student;
+import com.ucc.attendance.security.SessionManager;
 import com.ucc.attendance.service.AttendanceService;
 import com.ucc.attendance.util.InputValidator;
+
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -26,9 +32,10 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import javafx.stage.Window;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -36,13 +43,14 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * JavaFX controller for the main dashboard and all application tabs.
- * It reacts to button clicks, validates form input, and delegates persistence to DAO/service classes.
  */
 public class MainController {
+
     private final StudentDao studentDao = new StudentDao();
     private final CourseDao courseDao = new CourseDao();
     private final AttendanceService attendanceService = new AttendanceService();
@@ -120,9 +128,11 @@ public class MainController {
         attendanceDatePicker.setValue(LocalDate.now());
 
         studentSearchField.textProperty().addListener((observable, oldValue, newValue) -> loadStudents());
+
         studentTable.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, selectedStudent) -> populateStudentForm(selectedStudent)
         );
+
         courseTable.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, selectedCourse) -> populateCourseForm(selectedCourse)
         );
@@ -133,11 +143,14 @@ public class MainController {
     private void configureStudentTable() {
         studentIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         studentNumberColumn.setCellValueFactory(new PropertyValueFactory<>("studentNumber"));
+
         studentNameColumn.setCellValueFactory(cellData ->
                 new SimpleStringProperty(cellData.getValue().getFullName()));
+
         studentEmailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
         studentProgrammeColumn.setCellValueFactory(new PropertyValueFactory<>("programme"));
         studentGenderColumn.setCellValueFactory(new PropertyValueFactory<>("gender"));
+
         studentTable.setItems(studentItems);
     }
 
@@ -147,6 +160,7 @@ public class MainController {
         courseTitleColumn.setCellValueFactory(new PropertyValueFactory<>("courseTitle"));
         courseLecturerColumn.setCellValueFactory(new PropertyValueFactory<>("lecturerName"));
         courseSemesterColumn.setCellValueFactory(new PropertyValueFactory<>("semester"));
+
         courseTable.setItems(courseItems);
     }
 
@@ -154,10 +168,14 @@ public class MainController {
         attendanceStudentNumberColumn.setCellValueFactory(new PropertyValueFactory<>("studentNumber"));
         attendanceStudentNameColumn.setCellValueFactory(new PropertyValueFactory<>("studentName"));
         attendanceStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+
         attendanceStatusColumn.setCellFactory(ComboBoxTableCell.forTableColumn(
                 FXCollections.observableArrayList(AttendanceStatus.values())
         ));
-        attendanceStatusColumn.setOnEditCommit(event -> event.getRowValue().setStatus(event.getNewValue()));
+
+        attendanceStatusColumn.setOnEditCommit(event ->
+                event.getRowValue().setStatus(event.getNewValue()));
+
         attendanceTable.setEditable(true);
         attendanceTable.setItems(attendanceItems);
     }
@@ -168,6 +186,7 @@ public class MainController {
         reportStudentNameColumn.setCellValueFactory(new PropertyValueFactory<>("studentName"));
         reportDateColumn.setCellValueFactory(new PropertyValueFactory<>("attendanceDate"));
         reportStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+
         reportTable.setItems(reportItems);
     }
 
@@ -186,11 +205,14 @@ public class MainController {
             student.setActive(true);
 
             boolean newStudent = student.getId() == 0;
+
             studentDao.save(student);
             clearStudentForm();
             loadStudents();
             loadDashboard();
+
             showInformation(newStudent ? "Student added successfully." : "Student updated successfully.");
+
         } catch (ValidationException | DataAccessException exception) {
             showError(exception.getMessage());
         }
@@ -199,6 +221,7 @@ public class MainController {
     @FXML
     private void handleDeleteStudent() {
         Student selectedStudent = studentTable.getSelectionModel().getSelectedItem();
+
         if (selectedStudent == null) {
             showError("Select a student row before choosing Delete.");
             return;
@@ -237,6 +260,7 @@ public class MainController {
         if (student == null) {
             return;
         }
+
         studentNumberField.setText(student.getStudentNumber());
         studentFirstNameField.setText(student.getFirstName());
         studentLastNameField.setText(student.getLastName());
@@ -258,11 +282,14 @@ public class MainController {
             course.setSemester(InputValidator.requireText(courseSemesterField.getText(), "Semester"));
 
             boolean newCourse = course.getId() == 0;
+
             courseDao.save(course);
             clearCourseForm();
             loadCourses();
             loadDashboard();
+
             showInformation(newCourse ? "Course added successfully." : "Course updated successfully.");
+
         } catch (ValidationException | DataAccessException exception) {
             showError(exception.getMessage());
         }
@@ -271,6 +298,7 @@ public class MainController {
     @FXML
     private void handleDeleteCourse() {
         Course selectedCourse = courseTable.getSelectionModel().getSelectedItem();
+
         if (selectedCourse == null) {
             showError("Select a course row before choosing Delete.");
             return;
@@ -307,6 +335,7 @@ public class MainController {
         if (course == null) {
             return;
         }
+
         courseCodeField.setText(course.getCourseCode());
         courseTitleField.setText(course.getCourseTitle());
         courseLecturerField.setText(course.getLecturerName());
@@ -318,6 +347,7 @@ public class MainController {
     private void handleLoadRegister() {
         Course selectedCourse = attendanceCourseComboBox.getValue();
         LocalDate selectedDate = attendanceDatePicker.getValue();
+
         if (selectedCourse == null || selectedDate == null) {
             showError("Select both a course and attendance date before loading the register.");
             return;
@@ -325,9 +355,11 @@ public class MainController {
 
         try {
             attendanceItems.setAll(attendanceService.loadRegister(selectedCourse, selectedDate));
+
             if (attendanceItems.isEmpty()) {
                 showInformation("No active students are available. Add students first.");
             }
+
         } catch (DataAccessException exception) {
             showError(exception.getMessage());
         }
@@ -354,13 +386,16 @@ public class MainController {
         try {
             Course selectedCourse = reportCourseComboBox.getValue();
             Integer courseId = selectedCourse == null ? null : selectedCourse.getId();
+
             List<AttendanceRecord> records = attendanceService.getReport(
                     courseId,
                     reportDatePicker.getValue(),
                     reportStatusComboBox.getValue()
             );
+
             reportItems.setAll(records);
             updateReportSummary(records);
+
         } catch (DataAccessException exception) {
             showError(exception.getMessage());
         }
@@ -386,6 +421,7 @@ public class MainController {
         fileChooser.setTitle("Save Attendance Report");
         fileChooser.setInitialFileName("attendance-report-" + LocalDate.now() + ".csv");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV files", "*.csv"));
+
         Window window = reportTable.getScene().getWindow();
         File file = fileChooser.showSaveDialog(window);
 
@@ -393,6 +429,7 @@ public class MainController {
             try (BufferedWriter writer = Files.newBufferedWriter(file.toPath(), StandardCharsets.UTF_8)) {
                 writer.write("Course Code,Student Number,Student Name,Attendance Date,Status");
                 writer.newLine();
+
                 for (AttendanceRecord record : reportItems) {
                     writer.write(csv(record.getCourseCode()) + ","
                             + csv(record.getStudentNumber()) + ","
@@ -401,7 +438,9 @@ public class MainController {
                             + csv(record.getStatus().getDisplayName()));
                     writer.newLine();
                 }
+
                 showInformation("CSV report saved successfully.");
+
             } catch (IOException exception) {
                 showError("Could not export the report: " + exception.getMessage());
             }
@@ -409,8 +448,48 @@ public class MainController {
     }
 
     @FXML
+    private void handleRefresh() {
+        refreshAllData();
+    }
+
+    @FXML
     private void handleRefreshDashboard() {
         refreshAllData();
+    }
+
+    @FXML
+    private void handleLogout(ActionEvent event) {
+        SessionManager.logout();
+
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/ucc/attendance/fxml/login-view.fxml")
+            );
+
+            Pane root = loader.load();
+
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+            LoginController controller = loader.getController();
+            controller.setPrimaryStage(stage);
+
+            Scene scene = new Scene(
+                    root,
+                    stage.getScene().getWidth(),
+                    stage.getScene().getHeight()
+            );
+
+            scene.getStylesheets().add(Objects.requireNonNull(
+                    getClass().getResource("/com/ucc/attendance/css/app.css")
+            ).toExternalForm());
+
+            stage.setTitle("Student Attendance Monitoring System - Login");
+            stage.setScene(scene);
+            stage.centerOnScreen();
+
+        } catch (IOException exception) {
+            showError("Could not log out. Please restart the application.");
+        }
     }
 
     @FXML
@@ -430,10 +509,13 @@ public class MainController {
     private void loadStudents() {
         try {
             String searchText = studentSearchField == null ? "" : studentSearchField.getText();
+
             List<Student> students = searchText == null || searchText.isBlank()
                     ? studentDao.findAll()
                     : studentDao.search(searchText);
+
             studentItems.setAll(students);
+
         } catch (DataAccessException exception) {
             showError(exception.getMessage());
         }
@@ -443,12 +525,16 @@ public class MainController {
         try {
             int attendanceCourseId = getSelectedCourseId(attendanceCourseComboBox);
             int reportCourseId = getSelectedCourseId(reportCourseComboBox);
+
             List<Course> courses = courseDao.findAll();
+
             courseItems.setAll(courses);
             attendanceCourseComboBox.setItems(FXCollections.observableArrayList(courses));
             reportCourseComboBox.setItems(FXCollections.observableArrayList(courses));
+
             selectCourseById(attendanceCourseComboBox, attendanceCourseId);
             selectCourseById(reportCourseComboBox, reportCourseId);
+
         } catch (DataAccessException exception) {
             showError(exception.getMessage());
         }
@@ -459,7 +545,8 @@ public class MainController {
     }
 
     private void selectCourseById(ComboBox<Course> comboBox, int courseId) {
-        comboBox.getItems().stream()
+        comboBox.getItems()
+                .stream()
                 .filter(course -> course.getId() == courseId)
                 .findFirst()
                 .ifPresent(comboBox::setValue);
@@ -504,7 +591,9 @@ public class MainController {
                 .filter(record -> record.getStatus() == AttendanceStatus.PRESENT
                         || record.getStatus() == AttendanceStatus.LATE)
                 .count();
+
         double percentage = records.isEmpty() ? 0.0 : (presentOrLate * 100.0) / records.size();
+
         reportCountLabel.setText(records.size() + " record(s)");
         reportAttendanceRateLabel.setText(String.format("Attendance rate: %.1f%%", percentage));
     }
@@ -517,6 +606,7 @@ public class MainController {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION, message, ButtonType.YES, ButtonType.NO);
         alert.setTitle(title);
         alert.setHeaderText(null);
+
         return alert.showAndWait().orElse(ButtonType.NO) == ButtonType.YES;
     }
 
