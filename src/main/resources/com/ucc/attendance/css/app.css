@@ -991,3 +991,28 @@
     -fx-scale-x: 1.03;
     -fx-scale-y: 1.03;
 }
+
+/* =========================================================
+   LOGGED-IN USER DISPLAY
+   ========================================================= */
+
+.logged-user-box {
+    -fx-padding: 4 0 4 0;
+}
+
+.logged-user-name {
+    -fx-font-size: 13px;
+    -fx-font-weight: 900;
+    -fx-text-fill: white;
+}
+
+.logged-user-role {
+    -fx-font-size: 10.5px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #bfdbfe;
+}
+
+.logged-user-role:hover,
+.logged-user-name:hover {
+    -fx-text-fill: #ffffff;
+}

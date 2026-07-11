@@ -9,6 +9,8 @@ import com.ucc.attendance.model.AttendanceStatus;
 import com.ucc.attendance.model.Course;
 import com.ucc.attendance.model.DashboardStatistics;
 import com.ucc.attendance.model.Student;
+import com.ucc.attendance.model.User;
+import com.ucc.attendance.model.UserRole;
 import com.ucc.attendance.security.SessionManager;
 import com.ucc.attendance.service.AttendanceService;
 import com.ucc.attendance.util.InputValidator;
@@ -36,6 +38,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -59,6 +62,9 @@ public class MainController {
     private final ObservableList<Course> courseItems = FXCollections.observableArrayList();
     private final ObservableList<AttendanceRecord> attendanceItems = FXCollections.observableArrayList();
     private final ObservableList<AttendanceRecord> reportItems = FXCollections.observableArrayList();
+
+    @FXML private Label loggedInUserLabel;
+    @FXML private Label loggedInRoleLabel;
 
     @FXML private Label totalStudentsLabel;
     @FXML private Label totalCoursesLabel;
@@ -137,6 +143,7 @@ public class MainController {
                 (observable, oldValue, selectedCourse) -> populateCourseForm(selectedCourse)
         );
 
+        applyRoleBasedAccess();
         refreshAllData();
     }
 
@@ -190,8 +197,62 @@ public class MainController {
         reportTable.setItems(reportItems);
     }
 
+    private void applyRoleBasedAccess() {
+        User currentUser = SessionManager.getCurrentUser();
+
+        if (currentUser == null) {
+            loggedInUserLabel.setText("Unknown User");
+            loggedInRoleLabel.setText("NO SESSION");
+            disableAdministrativeFeatures(true);
+            return;
+        }
+
+        loggedInUserLabel.setText(currentUser.getFullName());
+        loggedInRoleLabel.setText(currentUser.getRole().name());
+
+        boolean lecturerUser = currentUser.getRole() == UserRole.LECTURER;
+        disableAdministrativeFeatures(lecturerUser);
+    }
+
+    private void disableAdministrativeFeatures(boolean disabled) {
+        studentNumberField.setDisable(disabled);
+        studentFirstNameField.setDisable(disabled);
+        studentLastNameField.setDisable(disabled);
+        studentEmailField.setDisable(disabled);
+        studentProgrammeField.setDisable(disabled);
+        studentGenderComboBox.setDisable(disabled);
+        studentSearchField.setDisable(disabled);
+        studentSaveButton.setDisable(disabled);
+        studentTable.setDisable(disabled);
+
+        courseCodeField.setDisable(disabled);
+        courseTitleField.setDisable(disabled);
+        courseLecturerField.setDisable(disabled);
+        courseSemesterField.setDisable(disabled);
+        courseSaveButton.setDisable(disabled);
+        courseTable.setDisable(disabled);
+    }
+
+    private boolean isAdminUser() {
+        User currentUser = SessionManager.getCurrentUser();
+        return currentUser != null && currentUser.getRole() == UserRole.ADMIN;
+    }
+
+    private boolean requireAdminAccess() {
+        if (!isAdminUser()) {
+            showError("This action is restricted to administrators only.");
+            return false;
+        }
+
+        return true;
+    }
+
     @FXML
     private void handleSaveStudent() {
+        if (!requireAdminAccess()) {
+            return;
+        }
+
         try {
             Student student = Optional.ofNullable(studentTable.getSelectionModel().getSelectedItem())
                     .orElseGet(Student::new);
@@ -220,6 +281,10 @@ public class MainController {
 
     @FXML
     private void handleDeleteStudent() {
+        if (!requireAdminAccess()) {
+            return;
+        }
+
         Student selectedStudent = studentTable.getSelectionModel().getSelectedItem();
 
         if (selectedStudent == null) {
@@ -242,6 +307,10 @@ public class MainController {
 
     @FXML
     private void handleClearStudentForm() {
+        if (!requireAdminAccess()) {
+            return;
+        }
+
         clearStudentForm();
     }
 
@@ -272,6 +341,10 @@ public class MainController {
 
     @FXML
     private void handleSaveCourse() {
+        if (!requireAdminAccess()) {
+            return;
+        }
+
         try {
             Course course = Optional.ofNullable(courseTable.getSelectionModel().getSelectedItem())
                     .orElseGet(Course::new);
@@ -297,6 +370,10 @@ public class MainController {
 
     @FXML
     private void handleDeleteCourse() {
+        if (!requireAdminAccess()) {
+            return;
+        }
+
         Course selectedCourse = courseTable.getSelectionModel().getSelectedItem();
 
         if (selectedCourse == null) {
@@ -319,6 +396,10 @@ public class MainController {
 
     @FXML
     private void handleClearCourseForm() {
+        if (!requireAdminAccess()) {
+            return;
+        }
+
         clearCourseForm();
     }
 
